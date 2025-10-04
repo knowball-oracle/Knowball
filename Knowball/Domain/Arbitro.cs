@@ -7,11 +7,14 @@
         public string Cpf { get; set; }
         public string Status { get; set; }
 
-        public ICollection<Arbitragem> Arbitragens { get; set; }
-
-        public Arbitro()
+        public bool CpfValido()
         {
-            Arbitragens = new List<Arbitragem>();
+            return !string.IsNullOrWhiteSpace(Cpf) && Cpf.Length == 11 && Cpf.All(Char.IsDigit);
+        }
+
+        public bool NomeValido()
+        {
+            return !string.IsNullOrWhiteSpace(Nome);
         }
     }
 }

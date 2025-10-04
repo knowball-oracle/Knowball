@@ -8,11 +8,15 @@ namespace Knowball.Domain
         public string Nome { get; set; }
         public string Categoria { get; set; }
         public int Ano { get; set; }
-        public ICollection<Partida> Partidas { get; set; }
 
-        public Campeonato()
+        public bool AnoValido()
         {
-            Partidas = new List<Partida>();
+            return Ano > 1900 && Ano <= DateTime.Now.Year;
+        }
+
+        public bool NomeValido()
+        {
+            return !string.IsNullOrWhiteSpace(Nome);
         }
     }
 }

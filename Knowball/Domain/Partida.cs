@@ -10,20 +10,22 @@ namespace Knowball.Models
         public string Local { get; set; }
         public int PlacarMandante { get; set; }
         public int PlacarVisitante { get; set; }
+        public ICollection<Participacao> Participacoes { get; set; } = new List<Participacao>();
 
-        public Campeonato Campeonato { get; set; }
-
-        public ICollection<Participacao> Participacoes { get; set; }
-
-        public ICollection<Arbitragem> Arbitragens { get; set; }
-
-        public ICollection<Denuncia> Denuncias { get; set; }
-
-        public Partida()
+        public bool PlacarValido()
         {
-            Participacoes = new List<Participacao>();
-            Arbitragens = new List<Arbitragem>();
-            Denuncias = new List<Denuncia>();
+            //Regra: placares não podem ser menores que zero
+            return PlacarMandante >= 0 && PlacarVisitante >= 0;
+        }
+
+        public bool DataValida()
+        {
+            return DataPartida >= DateTime.Today;
+        }
+
+        public bool TemDuasEquipes()
+        {
+            return Participacoes != null && Participacoes.Count == 2;
         }
     }
 }

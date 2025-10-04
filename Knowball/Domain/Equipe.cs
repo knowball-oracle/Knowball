@@ -7,11 +7,12 @@
         public string Cidade { get; set; }
         public string Estado { get; set; }
 
-        public ICollection<Participacao> Participacoes { get; set; }
-
-        public Equipe()
+        public bool DadosValidos()
         {
-            Participacoes = new List<Participacao>();
+            return !string.IsNullOrWhiteSpace(Nome)
+                && !string.IsNullOrWhiteSpace(Cidade)
+                && !string.IsNullOrWhiteSpace(Estado)
+                && Estado.Length == 2;
         }
     }
 }

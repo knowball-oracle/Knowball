@@ -8,7 +8,9 @@ namespace Knowball.Domain
         public int IdEquipe { get; set; }
         public string Tipo { get; set; }
 
-        public Partida Partida { get; set; }
-        public Equipe Equipe { get; set; }
+        public bool TipoValido()
+        {
+            return Tipo == "Mandante" || Tipo == "Visitante";
+        }
     }
 }

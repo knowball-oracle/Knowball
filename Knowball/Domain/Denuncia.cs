@@ -12,6 +12,19 @@ namespace Knowball.Domain
         public string Sentimento { get; set; }
         public string Status { get; set; }
 
-        public Partida Partida { get; set; }
+        public bool StatusValido()
+        {
+            return Status == "Pendente" || Status == "Aprovada" || Status == "Rejeitada";
+        }
+
+        public bool ProtocoloValido()
+        {
+            return !string.IsNullOrWhiteSpace(Protocolo);
+        }
+
+        public bool RelatoValido()
+        {
+            return !string.IsNullOrWhiteSpace(Relato);
+        }
     }
 }
