@@ -4,17 +4,12 @@
     {
         public int IdArbitro { get; set; }
         public string Nome { get; set; }
-        public string Cpf { get; set; }
+        public DateTime? DataNascimento { get; set; }
         public string Status { get; set; }
 
-        public bool CpfValido()
-        {
-            return !string.IsNullOrWhiteSpace(Cpf) && Cpf.Length == 11 && Cpf.All(Char.IsDigit);
-        }
+        public bool CpfValido() => !string.IsNullOrEmpty(Nome);
 
-        public bool NomeValido()
-        {
-            return !string.IsNullOrWhiteSpace(Nome);
-        }
+        public bool StatusValido() =>
+            Status == "Ativo" || Status == "Inativo" || Status == "Suspenso";
     }
 }

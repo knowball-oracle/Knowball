@@ -7,12 +7,9 @@
         public string Cidade { get; set; }
         public string Estado { get; set; }
 
-        public bool DadosValidos()
-        {
-            return !string.IsNullOrWhiteSpace(Nome)
-                && !string.IsNullOrWhiteSpace(Cidade)
-                && !string.IsNullOrWhiteSpace(Estado)
-                && Estado.Length == 2;
-        }
+        public bool DadosValidos() =>
+            !string.IsNullOrWhiteSpace(Nome) &&
+            !string.IsNullOrWhiteSpace(Estado) &&
+            Estado.Length == 2;
     }
 }

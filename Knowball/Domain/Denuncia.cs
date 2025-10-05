@@ -6,25 +6,20 @@ namespace Knowball.Domain
     {
         public int IdDenuncia { get; set; }
         public int IdPartida { get; set; }
+        public int IdArbitro { get; set; }
         public string Protocolo { get; set; }
         public string Relato { get; set; }
-        public DateTime DataHora { get; set; }
-        public string Sentimento { get; set; }
+        public DateTime DataDenuncia { get; set; }
         public string Status { get; set; }
+        public string ResultadoAnalise { get; set; }
 
-        public bool StatusValido()
-        {
-            return Status == "Pendente" || Status == "Aprovada" || Status == "Rejeitada";
-        }
+        public bool StatusValido() => Status == "Em Análise" || Status == "Resolvida";
 
-        public bool ProtocoloValido()
-        {
-            return !string.IsNullOrWhiteSpace(Protocolo);
-        }
+        public bool ResultadoAnaliseValido() =>
+            ResultadoAnalise == null || ResultadoAnalise == "Procedente" || ResultadoAnalise == "Improcedente" || ResultadoAnalise == "Inconclusiva";
 
-        public bool RelatoValido()
-        {
-            return !string.IsNullOrWhiteSpace(Relato);
-        }
+        public bool ProtocoloValido() => !string.IsNullOrWhiteSpace(Protocolo);
+
+        public bool RelatoValido() => !string.IsNullOrWhiteSpace(Relato);
     }
 }

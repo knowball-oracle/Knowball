@@ -8,9 +8,7 @@ namespace Knowball.Domain
         public int IdArbitro { get; set; }
         public string Funcao { get; set; }
 
-        public bool FuncaoValida()
-        {
-            return Funcao == "Principal" || Funcao == "Assistente";
-        }
+        public bool FuncaoValida() =>
+            Funcao == "Principal" || Funcao == "Assistente 1" || Funcao == "Assistente 2" || Funcao == "Quarto Árbitro";
     }
 }
