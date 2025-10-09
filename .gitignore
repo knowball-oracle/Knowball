@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Ignore launch settings with environment variables for local development
+**/Properties/launchSettings.json
+
+# Ignore VSCode folder with local settings
+.vscode/
