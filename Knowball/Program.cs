@@ -1,25 +1,33 @@
+using Knowball.Application.Services;
+using Knowball.Domain.Repositories;
+using Knowball.Infrastructure;
+using Knowball.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-var app = builder.Build();
+if (!string.IsNullOrEmpty(dbUser))
+    connectionString = connectionString.Replace("${DB_USER}", dbUser);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+if (!string.IsNullOrEmpty(dbPassword))
+    connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword);
 
-app.UseHttpsRedirection();
+builder.Services.AddDbContext<KnowballContext>(options =>
+    options.UseOracle(connectionString));
 
-app.UseAuthorization();
+builder.Services.AddScoped<ICampeonatoRepository, CampeonatoRepository>();
+builder.Services.AddScoped<IEquipeRepository, EquipeRepository>();
+builder.Services.AddScoped<IArbitroRepository, ArbitroRepository>();
+builder.Services.AddScoped<IPartidaRepository, PartidaRepository>();
+builder.Services.AddScoped<IParticipacaoRepository, ParticipacaoRepository>();
+builder.Services.AddScoped<IArbitragemRepository, ArbitragemRepository>();
+builder.Services.AddScoped<IDenunciaRepository, DenunciaRepository>();
 
-app.MapControllers();
-
-app.Run();
+builder.Services.AddScoped<ICampeonatoService, CampeonatoService>();
+builder.Services.AddScoped<IPartidaService, PartidaService>();
+builder.Services.AddScoped<IDenunciaService, DenunciaService>();
