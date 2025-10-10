@@ -4,10 +4,10 @@ namespace Knowball.Application.Services
 {
     public interface ICampeonatoService
     {
-        void CriarCampeonato(CampeonatoDTO dto);
-        IEnumerable<CampeonatoDTO> ListarCampeonatos();
-        CampeonatoDTO ObterPorId(int id);
-        void AtualizarCampeonato(int id, CampeonatoDTO dto);
+        CampeonatoDto CriarCampeonato(CampeonatoDto dto);
+        IEnumerable<CampeonatoDto> ListarCampeonatos();
+        CampeonatoDto ObterPorId(int id);
+        void AtualizarCampeonato(int id, CampeonatoDto dto);
         void RemoverCampeonato(int id);
     }
 }

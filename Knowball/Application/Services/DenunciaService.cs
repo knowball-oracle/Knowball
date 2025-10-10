@@ -14,7 +14,7 @@ namespace Knowball.Application.Services
             _repository = repository;
         }
 
-        public void CriarDenuncia(DenunciaDTO dto)
+        public void CriarDenuncia(DenunciaDto dto)
         {
             var denuncia = new Denuncia
             {
@@ -34,10 +34,10 @@ namespace Knowball.Application.Services
             _repository.Add(denuncia);
         }
 
-        public IEnumerable<DenunciaDTO> ListarDenuncias()
+        public IEnumerable<DenunciaDto> ListarDenuncias()
         {
             var denuncias = _repository.GetAll();
-            return denuncias.Select(d => new DenunciaDTO
+            return denuncias.Select(d => new DenunciaDto
             {
                 IdPartida = d.IdPartida,
                 IdArbitro = d.IdArbitro,
@@ -49,12 +49,12 @@ namespace Knowball.Application.Services
             });
         }
 
-        public DenunciaDTO ObterPorId(int id)
+        public DenunciaDto ObterPorId(int id)
         {
             var d = _repository.GetById(id);
             if (d == null) throw new BusinessException("Denúncia não encontrada");
 
-            return new DenunciaDTO
+            return new DenunciaDto
             {
                 IdPartida = d.IdPartida,
                 IdArbitro = d.IdArbitro,
@@ -66,7 +66,7 @@ namespace Knowball.Application.Services
             };
         }
 
-        public void AtualizarDenuncia(int id, DenunciaDTO dto)
+        public void AtualizarDenuncia(int id, DenunciaDto dto)
         {
             var d = _repository.GetById(id);
             if (d == null) throw new BusinessException("Denúncia não encontrada");

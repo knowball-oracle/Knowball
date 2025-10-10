@@ -4,10 +4,10 @@ namespace Knowball.Application.Services
 {
     public interface IDenunciaService
     {
-        void CriarDenuncia(DenunciaDTO dto);
-        IEnumerable<DenunciaDTO> ListarDenuncias();
-        DenunciaDTO ObterPorId(int id);
-        void AtualizarDenuncia(int id, DenunciaDTO dto);
+        DenunciaDto CriarDenuncia(DenunciaDto dto);
+        IEnumerable<DenunciaDto> ListarDenuncias();
+        DenunciaDto ObterPorId(int id);
+        void AtualizarDenuncia(int id, DenunciaDto dto);
         void RemoverDenuncia(int id);
     }
 }

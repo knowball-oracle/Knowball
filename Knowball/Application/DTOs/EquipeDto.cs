@@ -1,10 +1,10 @@
 ﻿namespace Knowball.Application.DTOs
 {
-    public class CampeonatoDto
+    public class EquipeDto
     {
-        public int IdCampeonato { get; set; }
+        public int IdEquipe { get; set; }
         public string Nome { get; set; }
         public string Categoria { get; set; }
-        public int Ano { get; set; }
+        public string Estado { get; set; }
     }
 }

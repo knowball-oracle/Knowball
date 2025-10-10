@@ -1,7 +1,8 @@
 ﻿namespace Knowball.Application.DTOs
 {
-    public class DenunciaDTO
+    public class DenunciaDto
     {
+        public int IdDenuncia { get; set; }
         public int IdPartida { get; set; }
         public int IdArbitro { get; set; }
         public string Protocolo { get; set; }

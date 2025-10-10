@@ -15,28 +15,43 @@ namespace Knowball.Application.Services
             _repository = repository;
         }
 
-        public void CriarPartida(PartidaDTO dto)
+        public PartidaDto CriarPartida(PartidaDto dto)
         {
-            var partida = new Partida()
+            var partida = new Partida
             {
                 IdCampeonato = dto.IdCampeonato,
                 DataPartida = dto.DataPartida,
                 Local = dto.Local,
+                PlacarMandante = dto.PlacarMandante,
                 PlacarVisitante = dto.PlacarVisitante,
                 Participacoes = new List<Participacao>()
             };
 
-            if (!partida.PlacarValido()) throw new BusinessException("Placar inválido");
-            if (!partida.DataValida()) throw new BusinessException("Data da partida inválida");
+            if (!partida.PlacarValido())
+                throw new BusinessException("Placar inválido");
+
+            if (!partida.DataValida())
+                throw new BusinessException("Data da partida inválida");
 
             _repository.Add(partida);
+
+            return new PartidaDto
+            {
+                IdPartida = partida.IdPartida,
+                IdCampeonato = partida.IdCampeonato,
+                DataPartida = partida.DataPartida,
+                Local = partida.Local,
+                PlacarMandante = partida.PlacarMandante,
+                PlacarVisitante = partida.PlacarVisitante
+            };
         }
 
-        public IEnumerable<PartidaDTO> ListarPartidas()
+        public IEnumerable<PartidaDto> ListarPartidas()
         {
             var partidas = _repository.GetAll();
-            return partidas.Select(p => new PartidaDTO
+            return partidas.Select(p => new PartidaDto
             {
+                IdPartida = p.IdPartida,
                 IdCampeonato = p.IdCampeonato,
                 DataPartida = p.DataPartida,
                 Local = p.Local,
@@ -45,13 +60,14 @@ namespace Knowball.Application.Services
             });
         }
 
-        public PartidaDTO ObterPorId(int id)
+        public PartidaDto ObterPorId(int id)
         {
             var p = _repository.GetById(id);
             if (p == null) throw new BusinessException("Partida não encontrada");
 
-            return new PartidaDTO
+            return new PartidaDto
             {
+                IdPartida = p.IdPartida,
                 IdCampeonato = p.IdCampeonato,
                 DataPartida = p.DataPartida,
                 Local = p.Local,
@@ -60,7 +76,7 @@ namespace Knowball.Application.Services
             };
         }
 
-        public void AtualizarPartida(int id, PartidaDTO dto)
+        public void AtualizarPartida(int id, PartidaDto dto)
         {
             var p = _repository.GetById(id);
             if (p == null) throw new BusinessException("Partida não encontrada");
@@ -71,8 +87,11 @@ namespace Knowball.Application.Services
             p.PlacarMandante = dto.PlacarMandante;
             p.PlacarVisitante = dto.PlacarVisitante;
 
-            if (!p.PlacarValido()) throw new BusinessException("Placar inválido");
-            if (!p.DataValida()) throw new BusinessException("Data da partida inválida");
+            if (!p.PlacarValido())
+                throw new BusinessException("Placar inválido");
+
+            if (!p.DataValida())
+                throw new BusinessException("Data da partida inválida");
 
             _repository.Update(p);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 using Knowball.Application.DTOs;
 using Knowball.Application.Exceptions;
 using Knowball.Domain;
@@ -15,7 +15,7 @@ namespace Knowball.Application.Services
             _repository = repository;
         }
 
-        public void CriarCampeonato(CampeonatoDTO dto)
+        public CampeonatoDto CriarCampeonato(CampeonatoDto dto)
         {
             var campeonato = new Campeonato
             {
@@ -28,12 +28,20 @@ namespace Knowball.Application.Services
                 throw new BusinessException("Ano ou categoria inválidos");
 
             _repository.Add(campeonato);
+
+            return new CampeonatoDto
+            {
+                Id = campeonato.IdCampeonato,
+                Nome = campeonato.Nome,
+                Categoria = campeonato.Categoria,
+                Ano = campeonato.Ano
+            };
         }
 
-        public IEnumerable<CampeonatoDTO> ListarCampeonatos()
+        public IEnumerable<CampeonatoDto> ListarCampeonatos()
         {
             var campeonatos = _repository.GetAll();
-            return campeonatos.Select(c => new CampeonatoDTO
+            return campeonatos.Select(c => new CampeonatoDto
             {
                 Nome = c.Nome,
                 Categoria = c.Categoria,
@@ -41,12 +49,12 @@ namespace Knowball.Application.Services
             });
         }
 
-        public CampeonatoDTO ObterPorId(int id)
+        public CampeonatoDto ObterPorId(int id)
         {
             var c = _repository.GetById(id);
             if (c == null) throw new BusinessException("Campeonato não encontrado");
 
-            return new CampeonatoDTO
+            return new CampeonatoDto
             {
                 Nome = c.Nome,
                 Categoria = c.Categoria,
@@ -54,7 +62,7 @@ namespace Knowball.Application.Services
             };
         }
 
-        public void AtualizarCampeonato(int id, CampeonatoDTO dto)
+        public void AtualizarCampeonato(int id, CampeonatoDto dto)
         {
             var c = _repository.GetById(id);
             if (c == null) throw new BusinessException("Campeonato não encontrado");

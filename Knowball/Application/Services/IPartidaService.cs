@@ -4,10 +4,10 @@ namespace Knowball.Application.Services
 {
     public interface IPartidaService
     {
-        void CriarPartida(PartidaDTO dto);
-        IEnumerable<PartidaDTO> ListarPartidas();
-        PartidaDTO ObterPorId(int id);
-        void AtualizarPartida(int id, PartidaDTO dto);
-        void RemoverPartida(int id);
+        PartidaDto CriarPartida(PartidaDto dto);
+        IEnumerable<PartidaDto> ListarPartidas();
+        PartidaDto ObterPorId(int idPartida);
+        void AtualizarPartida(int idPartida, PartidaDto dto);
+        void RemoverPartida(int idPartida);
     }
 }
