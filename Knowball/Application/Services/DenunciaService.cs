@@ -14,7 +14,7 @@ namespace Knowball.Application.Services
             _repository = repository;
         }
 
-        public void CriarDenuncia(DenunciaDto dto)
+        public DenunciaDto CriarDenuncia(DenunciaDto dto)
         {
             var denuncia = new Denuncia
             {
@@ -32,6 +32,18 @@ namespace Knowball.Application.Services
             if (!denuncia.RelatoValido()) throw new BusinessException("Relato inválido");
 
             _repository.Add(denuncia);
+
+            return new DenunciaDto
+            {
+                IdDenuncia = denuncia.IdDenuncia,
+                IdPartida = denuncia.IdPartida,
+                IdArbitro = denuncia.IdArbitro,
+                Protocolo = denuncia.Protocolo,
+                Relato = denuncia.Relato,
+                DataDenuncia = denuncia.DataDenuncia,
+                Status = denuncia.Status,
+                ResultadoAnalise = denuncia.ResultadoAnalise
+            };
         }
 
         public IEnumerable<DenunciaDto> ListarDenuncias()

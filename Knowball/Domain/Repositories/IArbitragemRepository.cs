@@ -2,7 +2,7 @@
 {
     public interface IArbitragemRepository
     {
-        Arbitragem GetByIds(int idPartida, int idArbitro);
+        Arbitragem? GetByIds(int idPartida, int idArbitro);
         IEnumerable<Arbitragem> GetAll();
         void Add(Arbitragem arbitragem);
         void Update(Arbitragem arbitragem);

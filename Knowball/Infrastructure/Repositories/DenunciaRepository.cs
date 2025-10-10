@@ -23,7 +23,7 @@ namespace Knowball.Infrastructure.Repositories
             return _context.Denuncias.ToList();
         }
 
-        public Denuncia GetById(int id)
+        public Denuncia? GetById(int id)
         {
             return _context.Denuncias.Find(id);
         }

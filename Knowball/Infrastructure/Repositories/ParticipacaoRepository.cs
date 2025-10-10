@@ -24,7 +24,7 @@ namespace Knowball.Infrastructure.Repositories
             return _context.Participacoes.ToList();
         }
 
-        public Participacao GetByIds(int idPartida, int idEquipe)
+        public Participacao? GetByIds(int idPartida, int idEquipe)
         {
             return _context.Participacoes
                 .FirstOrDefault(p => p.IdPartida == idPartida && p.IdEquipe == idEquipe);

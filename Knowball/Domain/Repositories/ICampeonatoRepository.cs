@@ -2,7 +2,7 @@
 {
     public interface ICampeonatoRepository
     {
-        Campeonato GetById(int id);
+        Campeonato? GetById(int id);
         IEnumerable<Campeonato> GetAll();
         void Add(Campeonato campeonato);
         void Update(Campeonato campeonato);

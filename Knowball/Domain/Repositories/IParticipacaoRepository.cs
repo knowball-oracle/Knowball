@@ -2,7 +2,7 @@
 {
     public interface IParticipacaoRepository
     {
-        Participacao GetByIds(int idPartida, int idEquipe);
+        Participacao? GetByIds(int idPartida, int idEquipe);
         IEnumerable<Participacao> GetAll();
         void Add(Participacao participacao);
         void Update(Participacao participacao);

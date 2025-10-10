@@ -23,7 +23,7 @@ namespace Knowball.Infrastructure.Repositories
             return _context.Equipes.ToList();
         }
 
-        public Equipe GetById(int id)
+        public Equipe? GetById(int id)
         {
             return _context.Equipes.Find(id);
         }

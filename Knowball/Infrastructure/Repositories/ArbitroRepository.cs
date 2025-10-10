@@ -23,7 +23,7 @@ namespace Knowball.Infrastructure.Repositories
             return _context.Arbitros.ToList();
         }
 
-        public Arbitro GetById(int id)
+        public Arbitro? GetById(int id)
         {
             return _context.Arbitros.Find(id);
         }

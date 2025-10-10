@@ -1,17 +1,19 @@
-﻿using Knowball.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using Knowball.Models;
 
 namespace Knowball.Domain
 {
     public class Denuncia
     {
+        [Key]
         public int IdDenuncia { get; set; }
         public int IdPartida { get; set; }
         public int IdArbitro { get; set; }
-        public string Protocolo { get; set; }
-        public string Relato { get; set; }
+        public string Protocolo { get; set; } = string.Empty;
+        public string Relato { get; set; } = string.Empty;
         public DateTime DataDenuncia { get; set; }
-        public string Status { get; set; }
-        public string ResultadoAnalise { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string ResultadoAnalise { get; set; } = string.Empty;
 
         public bool StatusValido() => Status == "Em Análise" || Status == "Resolvida";
 

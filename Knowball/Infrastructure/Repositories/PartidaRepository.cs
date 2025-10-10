@@ -23,7 +23,7 @@ namespace Knowball.Infrastructure.Repositories
             return _context.Partidas.ToList();
         }
 
-        public Partida GetById(int id)
+        public Partida? GetById(int id)
         {
             return _context.Partidas.Find(id);
         }

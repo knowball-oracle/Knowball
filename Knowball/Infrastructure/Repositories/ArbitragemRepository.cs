@@ -23,7 +23,7 @@ namespace Knowball.Infrastructure.Repositories
             return _context.Arbitragens.ToList();
         }
 
-        public Arbitragem GetByIds(int idPartida, int idArbitro)
+        public Arbitragem? GetByIds(int idPartida, int idArbitro)
         {
             return _context.Arbitragens
                 .FirstOrDefault(a => a.IdPartida == idPartida && a.IdArbitro == idArbitro);

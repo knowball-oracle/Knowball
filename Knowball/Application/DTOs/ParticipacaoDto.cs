@@ -4,6 +4,6 @@
     {
         public int IdPartida {  get; set; }
         public int IdEquipe {  get; set; }
-        public string Tipo { get; set; }
+        public string Tipo { get; set; } = string.Empty;
     }
 }

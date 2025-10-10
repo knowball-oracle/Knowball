@@ -19,6 +19,7 @@ namespace Knowball.Application.Services
         {
             var campeonato = new Campeonato
             {
+                IdCampeonato = dto.IdCampeonato,
                 Nome = dto.Nome,
                 Categoria = dto.Categoria,
                 Ano = dto.Ano
@@ -31,7 +32,7 @@ namespace Knowball.Application.Services
 
             return new CampeonatoDto
             {
-                Id = campeonato.IdCampeonato,
+                IdCampeonato = campeonato.IdCampeonato,
                 Nome = campeonato.Nome,
                 Categoria = campeonato.Categoria,
                 Ano = campeonato.Ano
@@ -56,6 +57,7 @@ namespace Knowball.Application.Services
 
             return new CampeonatoDto
             {
+                IdCampeonato = c.IdCampeonato,
                 Nome = c.Nome,
                 Categoria = c.Categoria,
                 Ano = c.Ano

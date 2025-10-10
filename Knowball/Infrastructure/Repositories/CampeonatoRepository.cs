@@ -24,7 +24,7 @@ namespace Knowball.Infrastructure.Repositories
             return _context.Campeonatos.ToList();
         }
 
-        public Campeonato GetById(int id)
+        public Campeonato? GetById(int id)
         {
             return _context.Campeonatos.Find(id);
         }

@@ -1,13 +1,15 @@
-﻿using Knowball.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using Knowball.Domain;
 
 namespace Knowball.Models
 {
     public class Partida
     {
+        [Key]
         public int IdPartida { get; set; }
         public int IdCampeonato { get; set; }
         public DateTime DataPartida { get; set; }
-        public string Local { get; set; }
+        public string Local { get; set; } = string.Empty;
         public int PlacarMandante { get; set; }
         public int PlacarVisitante { get; set; }
 
