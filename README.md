@@ -1,1 +1,7 @@
-# Knowball
+![Imagem](https://drive.google.com/uc?export=view&id=1mV7IfbfpqJTFdBvw7iWp5F8MNGWPDlGC)
+[![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![Entity Framework Core](https://img.shields.io/badge/Entity%20Framework%20Core-512BD4?style=for-the-badge&logo=.net&logoColor=white)](https://docs.microsoft.com/en-us/ef/core/)
+[![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)](https://docs.microsoft.com/en-us/dotnet/csharp/)
+[![API](https://img.shields.io/badge/API-28A745?style=for-the-badge&logo=api&logoColor=white)]()
+[![Migrations](https://img.shields.io/badge/Migrations-F80000?style=for-the-badge&logo=database&logoColor=white)]()
+[![Oracle](https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white)](https://www.oracle.com/database/)
