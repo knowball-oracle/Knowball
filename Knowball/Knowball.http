@@ -1,6 +1,217 @@
 @Knowball_HostAddress = http://localhost:5026
 
-GET {{Knowball_HostAddress}}/weatherforecast/
+### Listar todos os campeonatos
+GET {{Knowball_HostAddress}}/api/campeonato
 Accept: application/json
+
+###
+
+### Buscar campeonato por ID
+GET {{Knowball_HostAddress}}/api/campeonato/1
+Accept: application/json
+
+###
+
+### Criar novo campeonato
+POST {{Knowball_HostAddress}}/api/campeonato
+Content-Type: application/json
+{
+  "nome": "Campeonato Paulista",
+  "categoria": "Sub-20",
+  "ano": 2025
+}
+
+###
+
+### Atualizar campeonato
+PUT {{Knowball_HostAddress}}/api/campeonato/1
+Content-Type: application/json
+{
+  "nome": "Campeonato Paulista",
+  "categoria": "Sub-15",
+  "ano": 2025
+}
+
+###
+
+### Deletar campeonato
+DELETE {{Knowball_HostAddress}}/api/campeonato/1
+
+###
+
+### Listar todas as equipes
+GET {{Knowball_HostAddress}}/api/equipe
+Accept: application/json
+
+###
+
+### Buscar equipe por ID
+GET {{Knowball_HostAddress}}/api/equipe/2
+Accept: application/json
+
+###
+
+### Criar nova equipe
+POST {{Knowball_HostAddress}}/api/equipe
+Content-Type: application/json
+{
+  "nome": "Corinthians",
+  "cidade": "São Paulo",
+  "estado": "SP"
+}
+
+###
+
+### Atualizar equipe
+PUT {{Knowball_HostAddress}}/api/equipe/2
+Content-Type: application/json
+{
+  "nome": "São Paulo FC",
+  "cidade": "São Paulo",
+  "estado": "SP"
+}
+
+###
+
+### Deletar equipe
+DELETE {{Knowball_HostAddress}}/api/equipe/1
+
+###
+
+### Listar todos os árbitros
+GET {{Knowball_HostAddress}}/api/arbitro
+Accept: application/json
+
+###
+
+### Buscar árbitro por ID
+GET {{Knowball_HostAddress}}/api/arbitro/1
+Accept: application/json
+
+###
+
+### Criar novo árbitro
+POST {{Knowball_HostAddress}}/api/arbitro
+Content-Type: application/json
+{
+  "nome": "João Silva",
+  "dataNascimento": "1980-05-15",
+  "status": "Ativo"
+}
+
+###
+
+### Atualizar árbitro
+PUT {{Knowball_HostAddress}}/api/arbitro/1
+Content-Type: application/json
+{
+  "nome": "Roberto Junior",
+  "dataNascimento": "1980-05-15",
+  "status": "Ativo"
+}
+
+###
+
+### Deleter árbitro
+DELETE {{Knowball_HostAddress}}/api/arbitro/1
+
+###
+
+### Listar todas as partidas
+GET {{Knowball_HostAddress}}/api/partida
+Accept: application/json
+
+###
+
+### Buscar partida por ID
+GET {{Knowball_HostAddress}}/api/partida/1
+Accept: application/json
+
+###
+
+### Criar nova partida
+POST {{Knowball_HostAddress}}/api/partida
+Content-Type: application/json
+{
+    "dataPartida": "2025-10-15T16:30:00",
+    "local": "Morumbi",
+    "placarMandante": 1,
+    "placarVisitante": 0
+}
+
+###
+
+### Listar todas as participações
+GET {{Knowball_HostAddress}}/api/participacao
+Accept: application/json
+
+###
+
+### Buscar participação por IDs
+GET {{Knowball_HostAddress}}/api/participacao/1/1
+Accept: application/json
+
+###
+
+### Criar nova participação
+POST {{Knowball_HostAddress}}/api/participacao
+Content-Type: application/json
+{
+  "idPartida": 1,
+  "idEquipe": 1,
+  "tipo": "Mandante"
+}
+
+###
+
+### Listar todas as arbitragens
+GET {{Knowball_HostAddress}}/api/arbitragem
+Accept: application/json
+
+###
+
+### Buscar arbitragem por IDs
+GET {{Knowball_HostAddress}}/api/arbitragem/1/1
+Accept: application/json
+
+###
+
+### Criar nova arbitragem
+POST {{Knowball_HostAddress}}/api/arbitragem
+Content-Type: application/json
+
+{
+  "idPartida": 1,
+  "idArbitro": 1,
+  "funcao": "Principal"
+}
+
+###
+
+### Listar todas as denúncias
+GET {{Knowball_HostAddress}}/api/denuncia
+Accept: application/json
+
+###
+
+### Buscar denúncia por ID
+GET {{Knowball_HostAddress}}/api/denuncia/1
+Accept: application/json
+
+###
+
+### Criar nova denúncia
+POST {{Knowball_HostAddress}}/api/denuncia
+Content-Type: application/json
+
+{
+  "idPartida": 1,
+  "idArbitro": 1,
+  "protocolo": "PROTO-2025001",
+  "relato": "Irregularidade na súmula",
+  "dataDenuncia": "2025-10-15T18:10:00",
+  "status": "Em Análise",
+  "resultadoAnalise": "Procedente"
+}
 
 ###

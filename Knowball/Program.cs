@@ -17,6 +17,11 @@ connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword ?? "");
 builder.Services.AddDbContext<KnowballContext>(options =>
     options.UseOracle(connectionString));
 
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<ICampeonatoRepository, CampeonatoRepository>();
 builder.Services.AddScoped<IEquipeRepository, EquipeRepository>();
 builder.Services.AddScoped<IArbitroRepository, ArbitroRepository>();
@@ -28,10 +33,10 @@ builder.Services.AddScoped<IDenunciaRepository, DenunciaRepository>();
 builder.Services.AddScoped<ICampeonatoService, CampeonatoService>();
 builder.Services.AddScoped<IPartidaService, PartidaService>();
 builder.Services.AddScoped<IDenunciaService, DenunciaService>();
-builder.Services.AddScoped<IEquipeService, IEquipeService>();
-builder.Services.AddScoped<IArbitroService, IArbitroService>();
-builder.Services.AddScoped<IParticipacaoService, IParticipacaoService>();
-builder.Services.AddScoped<IArbitragemService, IArbitragemService>();
+builder.Services.AddScoped<IEquipeService, EquipeService>();
+builder.Services.AddScoped<IArbitroService, ArbitroService>();
+builder.Services.AddScoped<IParticipacaoService, ParticipacaoService>();
+builder.Services.AddScoped<IArbitragemService, ArbitragemService>();
 
 var app = builder.Build();
 
@@ -43,5 +48,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.Run();
