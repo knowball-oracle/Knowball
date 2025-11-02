@@ -1,0 +1,323 @@
+﻿@{
+    ViewData["Title"] = "Dashboard - Knowball";
+    var totalCampeonatos = ViewBag.TotalCampeonatos ?? 0;
+    var totalEquipes = ViewBag.TotalEquipes ?? 0;
+    var totalArbitros = ViewBag.TotalArbitros ?? 0;
+    var totalPartidas = ViewBag.TotalPartidas ?? 0;
+}
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #198754 0%, #157347 100%);
+        color: white;
+        padding: 60px 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-section h1 {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-section p {
+        font-size: 1.3rem;
+        opacity: 0.95;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border-top: 5px solid #198754;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card h3 {
+        color: #198754;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .stat-card p {
+        color: #666;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+        border-left: 5px solid #198754;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-card i {
+        font-size: 3rem;
+        color: #198754;
+        margin-bottom: 15px;
+    }
+
+    .feature-card h5 {
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+
+    .feature-card .btn {
+        margin-top: 10px;
+    }
+
+    .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 40px;
+        position: relative;
+        padding-bottom: 20px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #198754 0%, #157347 100%);
+        border-radius: 2px;
+    }
+
+    .quick-access {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+
+    .quick-access h4 {
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .animated-gradient {
+        background: linear-gradient(-45deg, #198754, #157347, #198754, #157347);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+    }
+
+    @@keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="hero-section animated-gradient">
+        <h1><i class="bi bi-trophy-fill"></i> Knowball</h1>
+        <p>Sistema de Gerenciamento de Campeonatos de Futebol</p>
+        <p style="font-size: 1rem; opacity: 0.9;">Gerencie campeonatos, equipes, árbitros e partidas com facilidade</p>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="mb-5">
+        <h2 class="section-title"><i class="bi bi-graph-up"></i> Estatísticas Gerais</h2>
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="bi bi-trophy" style="font-size: 2rem; color: #198754;"></i>
+                    <h3>@totalCampeonatos</h3>
+                    <p>Campeonatos</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="bi bi-people-fill" style="font-size: 2rem; color: #198754;"></i>
+                    <h3>@totalEquipes</h3>
+                    <p>Equipes</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="bi bi-person-badge" style="font-size: 2rem; color: #198754;"></i>
+                    <h3>@totalArbitros</h3>
+                    <p>Árbitros</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="bi bi-calendar-event" style="font-size: 2rem; color: #198754;"></i>
+                    <h3>@totalPartidas</h3>
+                    <p>Partidas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access Section -->
+    <div class="quick-access">
+        <h4><i class="bi bi-lightning-fill"></i> Acesso Rápido</h4>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <a href="@Url.Action("Index", "Campeonato")" class="btn btn-outline-success btn-lg w-100">
+                    <span class="btn-icon">
+                        <i class="bi bi-trophy"></i>
+                        Ver Campeonatos
+                    </span>
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="@Url.Action("Create", "Partida")" class="btn btn-outline-success btn-lg w-100">
+                    <span class="btn-icon">
+                        <i class="bi bi-calendar-event"></i>
+                        Nova Partida
+                    </span>
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="@Url.Action("Index", "Denuncia")" class="btn btn-outline-success btn-lg w-100">
+                    <span class="btn-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Ver Denúncias
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mb-5">
+        <h2 class="section-title"><i class="bi bi-star-fill"></i> Funcionalidades Principais</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="bi bi-trophy-fill"></i>
+                    <h5>Campeonatos</h5>
+                    <p>Crie e gerencie campeonatos de futebol com diferentes categorias e informações detalhadas.</p>
+                    <a href="@Url.Action("Index", "Campeonato")" class="btn btn-success btn-sm">
+                        <i class="bi bi-arrow-right"></i> Gerenciar
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="bi bi-people-fill"></i>
+                    <h5>Equipes</h5>
+                    <p>Registre equipes participantes com suas informações de localização e dados gerais.</p>
+                    <a href="@Url.Action("Index", "Equipe")" class="btn btn-success btn-sm">
+                        <i class="bi bi-arrow-right"></i> Gerenciar
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="bi bi-person-badge"></i>
+                    <h5>Árbitros</h5>
+                    <p>Gerencie árbitros cadastrados e acompanhe seu status e disponibilidade.</p>
+                    <a href="@Url.Action("Index", "Arbitro")" class="btn btn-success btn-sm">
+                        <i class="bi bi-arrow-right"></i> Gerenciar
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="bi bi-calendar-event"></i>
+                    <h5>Partidas</h5>
+                    <p>Registre partidas, equipes participantes, placares e informações do local.</p>
+                    <a href="@Url.Action("Index", "Partida")" class="btn btn-success btn-sm">
+                        <i class="bi bi-arrow-right"></i> Gerenciar
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="bi bi-diagram-3"></i>
+                    <h5>Participações</h5>
+                    <p>Registre participação de equipes nas partidas como mandante ou visitante.</p>
+                    <a href="@Url.Action("Index", "Participacao")" class="btn btn-success btn-sm">
+                        <i class="bi bi-arrow-right"></i> Gerenciar
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h5>Denúncias</h5>
+                    <p>Registre e acompanhe denúncias relacionadas às partidas e árbitros.</p>
+                    <a href="@Url.Action("Index", "Denuncia")" class="btn btn-success btn-sm">
+                        <i class="bi bi-arrow-right"></i> Gerenciar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div style="background: linear-gradient(135deg, #198754 0%, #157347 100%); color: white; padding: 40px; border-radius: 10px; text-align: center; margin-top: 40px;">
+        <h3><i class="bi bi-info-circle"></i> Bem-vindo ao Knowball</h3>
+        <p style="margin-top: 15px; font-size: 1.1rem;">
+            Um sistema completo e intuitivo para gerenciar todos os aspectos de seus campeonatos de futebol.
+            Desde a organização de equipes até o acompanhamento de partidas e denúncias.
+        </p>
+        <p style="font-size: 0.95rem; opacity: 0.9; margin-top: 15px;">
+            <strong>RM560967</strong> - Desenvolvido para FIAP
+        </p>
+    </div>
+</div>

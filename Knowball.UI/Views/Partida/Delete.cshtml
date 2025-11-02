@@ -1,0 +1,48 @@
+﻿@using Knowball.UI.ViewModels
+@model PartidaViewModel
+
+@{
+    ViewData["Title"] = "Deletar Partida";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="bi bi-exclamation-triangle"></i> Confirmar Exclusão</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Tem certeza de que deseja deletar esta partida?</p>
+
+                    <div class="alert alert-info">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Data/Hora:</strong> @Model.DataPartida.ToString("dd/MM/yyyy HH:mm")<br>
+                                <strong>Local:</strong> @Model.Local<br>
+                                <strong>Campeonato:</strong> @Model.NomeCampeonato
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Equipe Mandante:</strong> @Model.NomeEquipe1<br>
+                                <strong>Equipe Visitante:</strong> @Model.NomeEquipe2<br>
+                                <strong>Placar:</strong> @Model.PlacarMandante x @Model.PlacarVisitante
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-muted">Esta ação não pode ser desfeita!</p>
+
+                    <form asp-action="DeleteConfirmed" method="post" style="display:inline;">
+                        <input type="hidden" asp-for="IdPartida" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Deletar Partida
+                        </button>
+                    </form>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+﻿@using Knowball.UI.ViewModels
+@model ArbitragemViewModel
+
+@{
+    ViewData["Title"] = "Remover Arbitragem";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="bi bi-exclamation-triangle"></i> Confirmar Remoção</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Tem certeza de que deseja remover esta arbitragem?</p>
+
+                    <div class="alert alert-info">
+                        <strong>Árbitro:</strong> @Model.NomeArbitro<br>
+                        <strong>Partida:</strong> @Model.LocalPartida<br>
+                        <strong>Função:</strong> @Model.Funcao<br>
+                        <strong>Data:</strong> @Model.DataPartida
+                    </div>
+
+                    <p class="text-muted">Esta ação não pode ser desfeita!</p>
+
+                    <form asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" asp-for="IdPartida" />
+                        <input type="hidden" asp-for="IdArbitro" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Remover Arbitragem
+                        </button>
+                    </form>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

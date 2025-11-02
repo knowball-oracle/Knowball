@@ -1,0 +1,62 @@
+﻿@using Knowball.UI.ViewModels
+@model List<ParticipacaoViewModel>
+
+@{
+    ViewData["Title"] = "Participações";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="bi bi-diagram-3"></i> Gerenciar Participações</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Nova Participação
+            </a>
+        </div>
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhuma participação cadastrada.
+            <a asp-action="Create">Clique aqui</a> para criar uma nova.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-success">
+                    <tr>
+                        <th>Partida</th>
+                        <th>Equipe</th>
+                        <th>Tipo</th>
+                        <th style="width: 150px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.LocalPartida (@item.DataPartida)</td>
+                            <td>@item.NomeEquipe</td>
+                            <td>
+                                <span class="badge @(item.Tipo == "Mandante" ? "bg-info" : "bg-warning")">
+                                    @item.Tipo
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-action="Delete" asp-route-idPartida="@item.IdPartida"
+                                   asp-route-idEquipe="@item.IdEquipe" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Remover
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

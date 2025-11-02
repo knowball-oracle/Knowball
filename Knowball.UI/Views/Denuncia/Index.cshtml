@@ -1,0 +1,86 @@
+﻿@using Knowball.UI.ViewModels
+@model List<DenunciaViewModel>
+
+@{
+    ViewData["Title"] = "Denúncias";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="bi bi-exclamation-triangle-fill"></i> Gerenciar Denúncias</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Nova Denúncia
+            </a>
+        </div>
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhuma denúncia cadastrada.
+            <a asp-action="Create">Clique aqui</a> para criar uma nova.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-success">
+                    <tr>
+                        <th>Protocolo</th>
+                        <th>Relato</th>
+                        <th>Status</th>
+                        <th>Árbitro</th>
+                        <th>Partida</th>
+                        <th>Data</th>
+                        <th style="width: 200px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.Protocolo</strong></td>
+                            <td>@(item.Relato.Length > 50 ? item.Relato.Substring(0, 50) + "..." : item.Relato)</td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(item.Status)">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>@item.NomeArbitro</td>
+                            <td>@item.LocalPartida</td>
+                            <td>@item.DataDenuncia?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.IdDenuncia" class="btn btn-sm btn-info">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.IdDenuncia" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.IdDenuncia" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Deletar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Em Análise" => "bg-warning",
+            "Resolvida" => "bg-success",
+            "Rejeitada" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

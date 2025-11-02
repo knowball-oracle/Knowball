@@ -1,0 +1,62 @@
+﻿@using Knowball.UI.ViewModels
+@model List<EquipeViewModel>
+
+@{
+    ViewData["Title"] = "Equipes";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="bi bi-people-fill"></i> Gerenciar Equipes</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Nova Equipe
+            </a>
+        </div>
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhuma equipe cadastrada.
+            <a asp-action="Create">Clique aqui</a> para criar uma nova.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-success">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Cidade</th>
+                        <th>Estado</th>
+                        <th style="width: 150px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.IdEquipe</td>
+                            <td>@item.Nome</td>
+                            <td>@item.Cidade</td>
+                            <td>@item.Estado</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.IdEquipe" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.IdEquipe" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Deletar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

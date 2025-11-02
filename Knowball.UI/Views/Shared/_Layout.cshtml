@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Knowball</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body class="dark-theme">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-trophy-fill" style="color: #00d4ff;"></i>
+                    <span style="color: #ffffff; font-weight: bold; margin-left: 8px;">Knowball</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door"></i> Início
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Campeonato" asp-action="Index">
+                                <i class="bi bi-trophy"></i> Campeonatos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Equipe" asp-action="Index">
+                                <i class="bi bi-people-fill"></i> Equipes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Arbitro" asp-action="Index">
+                                <i class="bi bi-person-badge"></i> Árbitros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Partida" asp-action="Index">
+                                <i class="bi bi-calendar-event"></i> Partidas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Denuncia" asp-action="Index">
+                                <i class="bi bi-exclamation-triangle"></i> Denúncias
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid min-vh-100 d-flex flex-column">
+        <main role="main" class="pb-3 flex-grow-1 pt-4">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top border-secondary bg-dark text-light mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-2">&copy; 2025 - Knowball - Sistema de Gerenciamento de Futebol</p>
+            <p class="mb-0"><small class="text-muted"><strong>FIAP - RM560967</strong></small></p>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

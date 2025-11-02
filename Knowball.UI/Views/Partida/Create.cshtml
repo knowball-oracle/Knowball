@@ -1,0 +1,123 @@
+﻿@using Knowball.UI.ViewModels
+@model PartidaViewModel
+
+@{
+    ViewData["Title"] = "Criar Nova Partida";
+    var campeonatos = ViewBag.Campeonatos as List<CampeonatoViewModel>;
+    var equipes = ViewBag.Equipes as List<EquipeViewModel>;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="bi bi-plus-circle"></i> Criar Nova Partida</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="IdCampeonato" class="form-label"></label>
+                                <select asp-for="IdCampeonato" class="form-select">
+                                    <option value="">-- Selecione um campeonato --</option>
+                                    @if (campeonatos != null)
+                                    {
+                                        @foreach (var camp in campeonatos)
+                                        {
+                                            <option value="@camp.IdCampeonato">@camp.Nome (@camp.Ano)</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="IdCampeonato" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="DataPartida" class="form-label"></label>
+                                <input asp-for="DataPartida" type="datetime-local" class="form-control">
+                                <span asp-validation-for="DataPartida" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label asp-for="Local" class="form-label"></label>
+                                <input asp-for="Local" class="form-control" placeholder="Ex: Estádio do Morumbi">
+                                <span asp-validation-for="Local" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="mb-3"><i class="bi bi-people-fill"></i> Equipes</h6>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="IdEquipe1" class="form-label"><strong>Equipe Mandante</strong></label>
+                                <select asp-for="IdEquipe1" class="form-select">
+                                    <option value="">-- Selecione a equipe mandante --</option>
+                                    @if (equipes != null)
+                                    {
+                                        @foreach (var eq in equipes)
+                                        {
+                                            <option value="@eq.IdEquipe">@eq.Nome (@eq.Cidade - @eq.Estado)</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="IdEquipe1" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="IdEquipe2" class="form-label"><strong>Equipe Visitante</strong></label>
+                                <select asp-for="IdEquipe2" class="form-select">
+                                    <option value="">-- Selecione a equipe visitante --</option>
+                                    @if (equipes != null)
+                                    {
+                                        @foreach (var eq in equipes)
+                                        {
+                                            <option value="@eq.IdEquipe">@eq.Nome (@eq.Cidade - @eq.Estado)</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="IdEquipe2" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="mb-3"><i class="bi bi-targetable"></i> Placar</h6>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="PlacarMandante" class="form-label"></label>
+                                <input asp-for="PlacarMandante" type="number" class="form-control" value="0" min="0">
+                                <span asp-validation-for="PlacarMandante" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PlacarVisitante" class="form-label"></label>
+                                <input asp-for="PlacarVisitante" type="number" class="form-control" value="0" min="0">
+                                <span asp-validation-for="PlacarVisitante" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Salvar
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

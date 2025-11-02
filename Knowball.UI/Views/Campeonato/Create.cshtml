@@ -1,0 +1,63 @@
+﻿@using Knowball.UI.ViewModels
+@model CampeonatoViewModel
+
+@{
+    ViewData["Title"] = "Criar Novo Campeonato";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="bi bi-plus-circle"></i> Criar Novo Campeonato</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Nome" class="form-label"></label>
+                            <input asp-for="Nome" class="form-control" placeholder="Digite o nome do campeonato">
+                            <span asp-validation-for="Nome" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Ano" class="form-label"></label>
+                            <input asp-for="Ano" type="number" class="form-control" placeholder="Ex: 2025">
+                            <span asp-validation-for="Ano" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Categoria" class="form-label"></label>
+                            <select asp-for="Categoria" class="form-select">
+                                <option value="">-- Selecione uma categoria --</option>
+                                <option value="Sub-15">Sub-15</option>
+                                <option value="Sub-17">Sub-17</option>
+                                <option value="Sub-20">Sub-20</option>
+                                <option value="Profissional">Profissional</option>
+                                <option value="Amador">Amador</option>
+                            </select>
+                            <span asp-validation-for="Categoria" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Salvar
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

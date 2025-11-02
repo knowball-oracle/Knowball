@@ -1,0 +1,99 @@
+﻿@using Knowball.UI.ViewModels
+@model DenunciaViewModel
+
+@{
+    ViewData["Title"] = "Detalhes da Denúncia";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="bi bi-eye"></i> Detalhes da Denúncia</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Protocolo:</strong><br>
+                                <span class="badge bg-primary">@Model.Protocolo</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Status:</strong><br>
+                                <span class="badge @GetStatusBadgeClass(Model.Status)">
+                                    @Model.Status
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-4">
+                        <p><strong>Relato:</strong></p>
+                        <p class="alert alert-light">@Model.Relato</p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Árbitro Denunciado:</strong><br>@Model.NomeArbitro</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Data da Denúncia:</strong><br>@Model.DataDenuncia?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Partida:</strong><br>@Model.LocalPartida</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Data/Hora da Partida:</strong><br>@Model.DataPartida</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p><strong>Campeonato:</strong><br>@Model.CampeonatoPartida</p>
+                    </div>
+
+                    <hr>
+
+                    @if (!string.IsNullOrEmpty(Model.ResultadoAnalise))
+                    {
+                        <div class="mb-4">
+                            <p><strong>Resultado da Análise:</strong></p>
+                            <p class="alert alert-info">@Model.ResultadoAnalise</p>
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.IdDenuncia" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Em Análise" => "bg-warning",
+            "Resolvida" => "bg-success",
+            "Rejeitada" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

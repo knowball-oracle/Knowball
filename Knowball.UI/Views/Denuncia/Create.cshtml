@@ -1,0 +1,107 @@
+﻿@using Knowball.UI.ViewModels
+@model DenunciaViewModel
+
+@{
+    ViewData["Title"] = "Criar Nova Denúncia";
+    var partidas = ViewBag.Partidas as List<PartidaViewModel>;
+    var arbitros = ViewBag.Arbitros as List<ArbitroViewModel>;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="bi bi-plus-circle"></i> Criar Nova Denúncia</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Protocolo" class="form-label"></label>
+                                <input asp-for="Protocolo" class="form-control" placeholder="Ex: DEN202511021200">
+                                <small class="text-muted">Deixe em branco para gerar automaticamente</small>
+                                <span asp-validation-for="Protocolo" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="">-- Selecione um status --</option>
+                                    <option value="Em Análise">Em Análise</option>
+                                    <option value="Resolvida">Resolvida</option>
+                                    <option value="Rejeitada">Rejeitada</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="IdPartida" class="form-label"></label>
+                                <select asp-for="IdPartida" class="form-select">
+                                    <option value="">-- Selecione uma partida --</option>
+                                    @if (partidas != null)
+                                    {
+                                        @foreach (var p in partidas)
+                                        {
+                                            <option value="@p.IdPartida">@p.Local - @p.DataPartida.ToString("dd/MM/yyyy HH:mm")</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="IdPartida" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="IdArbitro" class="form-label"></label>
+                                <select asp-for="IdArbitro" class="form-select">
+                                    <option value="">-- Selecione um árbitro --</option>
+                                    @if (arbitros != null)
+                                    {
+                                        @foreach (var a in arbitros)
+                                        {
+                                            <option value="@a.IdArbitro">@a.Nome (@a.Status)</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="IdArbitro" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Relato" class="form-label"></label>
+                            <textarea asp-for="Relato" class="form-control" rows="5"
+                                      placeholder="Descreva detalhadamente a denúncia..."></textarea>
+                            <small class="text-muted">Mínimo de 10 caracteres e máximo de 500</small>
+                            <span asp-validation-for="Relato" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ResultadoAnalise" class="form-label"></label>
+                            <textarea asp-for="ResultadoAnalise" class="form-control" rows="3"
+                                      placeholder="(Opcional) Resultado da análise..."></textarea>
+                            <span asp-validation-for="ResultadoAnalise" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Salvar
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

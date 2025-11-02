@@ -1,0 +1,39 @@
+﻿@using Knowball.UI.ViewModels
+@model CampeonatoViewModel
+
+@{
+    ViewData["Title"] = "Deletar Campeonato";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="bi bi-exclamation-triangle"></i> Confirmar Exclusão</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Tem certeza de que deseja deletar este campeonato?</p>
+
+                    <div class="alert alert-info">
+                        <strong>Campeonato:</strong> @Model.Nome<br>
+                        <strong>Ano:</strong> @Model.Ano<br>
+                        <strong>Categoria:</strong> @Model.Categoria
+                    </div>
+
+                    <p class="text-muted">Esta ação não pode ser desfeita!</p>
+
+                    <form asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" asp-for="IdCampeonato" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Deletar Campeonato
+                        </button>
+                    </form>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
