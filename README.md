@@ -55,18 +55,23 @@ O projeto segue os princípios da **Clean Architecture**, garantindo separação
 ### Estrutura de camadas
 ```
 📦 Knowball
- ┣ 📂 Controllers             # Camada de Apresentação (API)
- ┣ 📂 Application
- ┃ ┣ 📂 Services              # Serviços de aplicação
- ┃ ┣ 📂 DTOs                  # Objetos de Transferência de Dados
- ┃ ┗ 📂 Interfaces            # Contratos de serviços
- ┣ 📂 Domain                  # Camada de Domínio
- ┃ ┣ 📂 Entities              # Entidades do domínio
- ┃ ┗ 📂 Repositories          # Interfaces de repositórios
- ┗ 📂 Infrastructure          # Camada de Infraestrutura
-   ┣ 📂 Repositories          # Implementação de repositórios
-   ┣ 📜 KnowballContext.cs    # Contexto do EF Core
-   ┗ 📂 Migrations            # Migrações do banco
+┣ 📂 Properties
+┃ ┗ 📜 launchSettings.json 
+┣ 📂 Application   
+┃ ┣ 📂 DTOs
+┃ ┣ 📂 Exceptions
+┃ ┣ 📂 Services 
+┣ 📂 Controllers
+┃ 📂 Domain
+┃ ┣ 📂 Repositories 
+┣ 📂 Infrastructure 
+┃ ┣ 📂 Repositories 
+┃ ┣ 📜 KnowballContext.cs
+┃ ┣ 📜 KnowballContextFactory.cs
+┃ 📂 Migrations
+┃ 📜 appsettings.json
+┃ 📜 Knowball.http
+┗ 📜 Program.cs 
 ```
 
 ## Como rodar o projeto
@@ -110,13 +115,13 @@ Isso criará todas as tabelas no banco Oracle
 
 6. Execute o projeto
 ```bash
-dotnet run
+dotnet run --launch-profile https    #ou F5
 ```
 
 A aplicação será iniciada em:
 
-- **HTTP**: `http://localhost:5000`
-- **HTTPS**: `https://localhost:5001` ou `https://localhost:7007`
+- **HTTP**: `http://localhost:5026`
+- **HTTPS**: `https://localhost:7007`
 
 ---
 
@@ -125,6 +130,16 @@ A aplicação será iniciada em:
 Após iniciar a aplicação, acesse a documentação interativa da API:
 
 `https://localhost:7007/swagger`
+
+## Testando a API
+
+### Usando o arquivo Knowball.http
+
+O projeto inclui um arquivo `Knowball.http` na raiz do projeto com exemplos de requisições para todos os endpoints. Para usá-lo:
+
+1. Abra o arquivo `Knowball.http` no Visual Studio ou VS Code
+2. Certifique-se de que o projeto está rodando
+3. Clique em "Send Request" acima de cada requisição para testá-la
 
 ## Integrantes
 
