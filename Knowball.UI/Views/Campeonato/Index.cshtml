@@ -5,36 +5,250 @@
     ViewData["Title"] = "Campeonatos";
 }
 
+<style>
+    :root {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a1d24;
+        --bg-card: #1e2329;
+        --accent-primary: #00d9a3;
+        --accent-secondary: #00b386;
+        --accent-glow: rgba(0, 217, 163, 0.15);
+        --text-primary: #e8e9ed;
+        --text-secondary: #a0a4b8;
+        --border-color: rgba(255, 255, 255, 0.08);
+        --danger-color: #ff4757;
+        --info-color: #4dabf7;
+        --warning-color: #ffd93d;
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .page-header h1 {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .page-header h1 i {
+                color: var(--accent-primary);
+                filter: drop-shadow(0 0 8px var(--accent-glow));
+            }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+        border: none;
+        color: #0f1419;
+        font-weight: 600;
+        padding: 12px 24px;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0, 217, 163, 0.3);
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #00ffc8 0%, var(--accent-primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 217, 163, 0.5);
+            color: #0f1419;
+        }
+
+    .alert-info {
+        background: linear-gradient(135deg, rgba(77, 171, 247, 0.1) 0%, rgba(77, 171, 247, 0.05) 100%);
+        border: 1px solid var(--info-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .alert-info i {
+            color: var(--info-color);
+            font-size: 1.5rem;
+        }
+
+        .alert-info a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+            .alert-info a:hover {
+                color: #00ffc8;
+                text-decoration: underline;
+            }
+
+    .table-responsive {
+        background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .table {
+        color: var(--text-primary);
+        margin-bottom: 0;
+    }
+
+        .table thead {
+            border-bottom: 2px solid var(--border-color);
+        }
+
+            .table thead th {
+                background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+                color: #0f1419;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.875rem;
+                padding: 16px;
+                border: none;
+            }
+
+                .table thead th:first-child {
+                    border-radius: 10px 0 0 0;
+                }
+
+                .table thead th:last-child {
+                    border-radius: 0 10px 0 0;
+                }
+
+        .table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .table tbody tr:hover {
+                background-color: rgba(0, 217, 163, 0.05);
+                transform: translateX(4px);
+            }
+
+            .table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+        .table tbody td {
+            padding: 16px;
+            vertical-align: middle;
+            color: var(--text-secondary);
+        }
+
+    .btn-warning {
+        background: linear-gradient(135deg, var(--warning-color) 0%, #fcc419 100%);
+        border: none;
+        color: #0f1419;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(255, 217, 61, 0.3);
+        font-size: 0.875rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 4px;
+    }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #ffe066 0%, var(--warning-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 217, 61, 0.5);
+            color: #0f1419;
+        }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color) 0%, #e84057 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+        font-size: 0.875rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff6b7a 0%, var(--danger-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.5);
+            color: white;
+        }
+
+    @@media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+        }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+    }
+</style>
+
 <div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1><i class="bi bi-trophy"></i> Gerenciar Campeonatos</h1>
-        </div>
-        <div class="col-md-4 text-end">
-            <a asp-action="Create" class="btn btn-success">
-                <i class="bi bi-plus-circle"></i> Novo Campeonato
-            </a>
-        </div>
+    <div class="page-header">
+        <h1><i class="bi bi-trophy"></i> Gerenciar Campeonatos</h1>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Novo Campeonato
+        </a>
     </div>
 
     @if (Model == null || Model.Count == 0)
     {
         <div class="alert alert-info" role="alert">
-            <i class="bi bi-info-circle"></i> Nenhum campeonato cadastrado.
-            <a asp-action="Create">Clique aqui</a> para criar um novo.
+            <i class="bi bi-info-circle"></i>
+            <span>
+                Nenhum campeonato cadastrado.
+                <a asp-action="Create">Clique aqui</a> para criar um novo.
+            </span>
         </div>
     }
     else
     {
         <div class="table-responsive">
-            <table class="table table-hover table-striped">
-                <thead class="table-success">
+            <table class="table table-hover">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Ano</th>
                         <th>Categoria</th>
-                        <th style="width: 150px;">Ações</th>
+                        <th style="width: 180px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,12 +260,10 @@
                             <td>@item.Ano</td>
                             <td>@item.Categoria</td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@item.IdCampeonato"
-                                   class="btn btn-sm btn-warning">
+                                <a asp-action="Edit" asp-route-id="@item.IdCampeonato" class="btn btn-warning">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@item.IdCampeonato"
-                                   class="btn btn-sm btn-danger">
+                                <a asp-action="Delete" asp-route-id="@item.IdCampeonato" class="btn btn-danger">
                                     <i class="bi bi-trash"></i> Deletar
                                 </a>
                             </td>

@@ -7,12 +7,198 @@
     var arbitros = ViewBag.Arbitros as List<ArbitroViewModel>;
 }
 
+<style>
+    :root {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a1d24;
+        --bg-card: #1e2329;
+        --text-primary: #e8e9ed;
+        --text-secondary: #a0a4b8;
+        --border-color: rgba(255, 255, 255, 0.08);
+        --warning-color: #ffd93d;
+        --warning-glow: rgba(255, 217, 61, 0.15);
+        --danger-color: #ff4757;
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+        .page-header h1 {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .page-header h1 i {
+                color: var(--warning-color);
+                filter: drop-shadow(0 0 8px var(--warning-glow));
+            }
+
+    .card {
+        background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--warning-color) 0%, #fcc419 100%);
+        border-bottom: none;
+        padding: 20px 24px;
+    }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0f1419;
+        }
+
+    .card-body {
+        padding: 32px 24px;
+    }
+
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control,
+    .form-select {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        padding: 12px 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            background-color: var(--bg-card);
+            border-color: var(--warning-color);
+            box-shadow: 0 0 0 3px var(--warning-glow);
+            color: var(--text-primary);
+        }
+
+        .form-control:disabled {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .form-select option {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .text-muted {
+        color: var(--text-secondary) !important;
+        font-size: 0.875rem;
+        margin-top: 4px;
+        display: block;
+    }
+
+    small.text-muted {
+        margin-top: 4px;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, var(--warning-color) 0%, #fcc419 100%);
+        border: none;
+        color: #0f1419;
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(255, 217, 61, 0.3);
+        letter-spacing: 0.5px;
+    }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #ffe066 0%, var(--warning-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 217, 61, 0.5);
+            color: #0f1419;
+        }
+
+    .btn-secondary {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-card);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+    .text-danger {
+        color: var(--danger-color) !important;
+        font-size: 0.875rem;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, rgba(255, 71, 87, 0.1) 0%, rgba(255, 71, 87, 0.05) 100%);
+        border: 1px solid var(--danger-color);
+        border-radius: 10px;
+        color: var(--danger-color);
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+
+    .d-flex.gap-2 {
+        gap: 12px;
+    }
+</style>
+
 <div class="container mt-4">
+    <div class="page-header">
+        <h1><i class="bi bi-pencil"></i> Editar Denúncia</h1>
+    </div>
+
     <div class="row">
         <div class="col-md-10 offset-md-1">
             <div class="card">
-                <div class="card-header bg-warning">
-                    <h5><i class="bi bi-pencil"></i> Editar Denúncia</h5>
+                <div class="card-header">
+                    <h5><i class="bi bi-exclamation-triangle-fill"></i> Atualizar Informações da Denúncia</h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Edit" method="post">
@@ -21,13 +207,13 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label asp-for="Protocolo" class="form-label"></label>
+                                <label asp-for="Protocolo" class="form-label">Protocolo</label>
                                 <input asp-for="Protocolo" class="form-control" disabled>
                                 <small class="text-muted">Protocolo não pode ser alterado</small>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="Status" class="form-label"></label>
+                                <label asp-for="Status" class="form-label">Status</label>
                                 <select asp-for="Status" class="form-select">
                                     <option value="">-- Selecione um status --</option>
                                     <option value="Em Análise" selected="@(Model.Status == "Em Análise")">Em Análise</option>
@@ -40,7 +226,7 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label asp-for="IdPartida" class="form-label"></label>
+                                <label asp-for="IdPartida" class="form-label">Partida</label>
                                 <select asp-for="IdPartida" class="form-select">
                                     <option value="">-- Selecione uma partida --</option>
                                     @if (partidas != null)
@@ -57,7 +243,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="IdArbitro" class="form-label"></label>
+                                <label asp-for="IdArbitro" class="form-label">Árbitro</label>
                                 <select asp-for="IdArbitro" class="form-select">
                                     <option value="">-- Selecione um árbitro --</option>
                                     @if (arbitros != null)
@@ -75,18 +261,18 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Relato" class="form-label"></label>
+                            <label asp-for="Relato" class="form-label">Relato da Denúncia</label>
                             <textarea asp-for="Relato" class="form-control" rows="5"></textarea>
                             <span asp-validation-for="Relato" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ResultadoAnalise" class="form-label"></label>
+                            <label asp-for="ResultadoAnalise" class="form-label">Resultado da Análise</label>
                             <textarea asp-for="ResultadoAnalise" class="form-control" rows="3"></textarea>
                             <span asp-validation-for="ResultadoAnalise" class="text-danger"></span>
                         </div>
 
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 mt-4">
                             <button type="submit" class="btn btn-warning">
                                 <i class="bi bi-save"></i> Atualizar
                             </button>

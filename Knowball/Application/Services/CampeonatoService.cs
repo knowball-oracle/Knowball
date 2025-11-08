@@ -1,5 +1,4 @@
-﻿
-using Knowball.Application.DTOs;
+﻿using Knowball.Application.DTOs;
 using Knowball.Application.Exceptions;
 using Knowball.Domain;
 using Knowball.Domain.Repositories;
@@ -12,14 +11,13 @@ namespace Knowball.Application.Services
 
         public CampeonatoService(ICampeonatoRepository repository)
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         public CampeonatoDto CriarCampeonato(CampeonatoDto dto)
         {
             var campeonato = new Campeonato
             {
-                IdCampeonato = dto.IdCampeonato,
                 Nome = dto.Nome,
                 Categoria = dto.Categoria,
                 Ano = dto.Ano
@@ -44,6 +42,7 @@ namespace Knowball.Application.Services
             var campeonatos = _repository.GetAll();
             return campeonatos.Select(c => new CampeonatoDto
             {
+                IdCampeonato = c.IdCampeonato, 
                 Nome = c.Nome,
                 Categoria = c.Categoria,
                 Ano = c.Ano
@@ -53,21 +52,23 @@ namespace Knowball.Application.Services
         public CampeonatoDto ObterPorId(int id)
         {
             var c = _repository.GetById(id);
-            if (c == null) throw new BusinessException("Campeonato não encontrado");
+
+            if (c == null) return null;
 
             return new CampeonatoDto
             {
                 IdCampeonato = c.IdCampeonato,
                 Nome = c.Nome,
-                Categoria = c.Categoria,
-                Ano = c.Ano
+                Ano = c.Ano,
+                Categoria = c.Categoria
             };
         }
 
         public void AtualizarCampeonato(int id, CampeonatoDto dto)
         {
             var c = _repository.GetById(id);
-            if (c == null) throw new BusinessException("Campeonato não encontrado");
+            if (c == null)
+                throw new BusinessException("Campeonato não encontrado");
 
             c.Nome = dto.Nome;
             c.Categoria = dto.Categoria;
@@ -81,6 +82,10 @@ namespace Knowball.Application.Services
 
         public void RemoverCampeonato(int id)
         {
+            var c = _repository.GetById(id);
+            if (c == null)
+                throw new BusinessException("Campeonato não encontrado");
+
             _repository.Remove(id);
         }
     }

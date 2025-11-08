@@ -5,24 +5,214 @@
     ViewData["Title"] = "Detalhes da Denúncia";
 }
 
+<style>
+    :root {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a1d24;
+        --bg-card: #1e2329;
+        --accent-primary: #00d9a3;
+        --text-primary: #e8e9ed;
+        --text-secondary: #a0a4b8;
+        --border-color: rgba(255, 255, 255, 0.08);
+        --info-color: #4dabf7;
+        --info-glow: rgba(77, 171, 247, 0.15);
+        --warning-color: #ffd93d;
+        --success-color: #00d9a3;
+        --danger-color: #ff4757;
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+        .page-header h1 {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .page-header h1 i {
+                color: var(--info-color);
+                filter: drop-shadow(0 0 8px var(--info-glow));
+            }
+
+    .card {
+        background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--info-color) 0%, #339af0 100%);
+        border-bottom: none;
+        padding: 20px 24px;
+    }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+    .card-body {
+        padding: 32px 24px;
+    }
+
+        .card-body p {
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .card-body strong {
+            color: var(--text-primary);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+    hr {
+        border-color: var(--border-color);
+        opacity: 1;
+        margin: 28px 0;
+    }
+
+    .badge {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, var(--accent-primary) 0%, #00b386 100%);
+        color: #0f1419;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, var(--warning-color) 0%, #fcc419 100%);
+        color: #0f1419;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, var(--success-color) 0%, #00b386 100%);
+        color: #0f1419;
+    }
+
+    .bg-danger {
+        background: linear-gradient(135deg, var(--danger-color) 0%, #e84057 100%);
+        color: white;
+    }
+
+    .alert-light {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        padding: 16px;
+        line-height: 1.6;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, var(--info-glow) 0%, rgba(77, 171, 247, 0.05) 100%);
+        border: 1px solid var(--info-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        padding: 16px;
+        line-height: 1.6;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, var(--warning-color) 0%, #fcc419 100%);
+        border: none;
+        color: #0f1419;
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(255, 217, 61, 0.3);
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #ffe066 0%, var(--warning-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 217, 61, 0.5);
+            color: #0f1419;
+        }
+
+    .btn-secondary {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-card);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+    .d-flex.gap-2 {
+        gap: 12px;
+    }
+</style>
+
 <div class="container mt-4">
+    <div class="page-header">
+        <h1><i class="bi bi-eye"></i> Detalhes da Denúncia</h1>
+    </div>
+
     <div class="row">
         <div class="col-md-10 offset-md-1">
             <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5><i class="bi bi-eye"></i> Detalhes da Denúncia</h5>
+                <div class="card-header">
+                    <h5><i class="bi bi-file-text"></i> Informações Completas</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <p>
-                                <strong>Protocolo:</strong><br>
+                                <strong>Protocolo:</strong>
                                 <span class="badge bg-primary">@Model.Protocolo</span>
                             </p>
                         </div>
                         <div class="col-md-6">
                             <p>
-                                <strong>Status:</strong><br>
+                                <strong>Status:</strong>
                                 <span class="badge @GetStatusBadgeClass(Model.Status)">
                                     @Model.Status
                                 </span>
@@ -33,16 +223,18 @@
                     <hr>
 
                     <div class="mb-4">
-                        <p><strong>Relato:</strong></p>
+                        <strong>Relato:</strong>
                         <p class="alert alert-light">@Model.Relato</p>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <p><strong>Árbitro Denunciado:</strong><br>@Model.NomeArbitro</p>
+                            <strong>Árbitro Denunciado:</strong>
+                            <p>@Model.NomeArbitro</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Data da Denúncia:</strong><br>@Model.DataDenuncia?.ToString("dd/MM/yyyy HH:mm")</p>
+                            <strong>Data da Denúncia:</strong>
+                            <p>@Model.DataDenuncia?.ToString("dd/MM/yyyy HH:mm")</p>
                         </div>
                     </div>
 
@@ -50,15 +242,18 @@
 
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <p><strong>Partida:</strong><br>@Model.LocalPartida</p>
+                            <strong>Partida:</strong>
+                            <p>@Model.LocalPartida</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Data/Hora da Partida:</strong><br>@Model.DataPartida</p>
+                            <strong>Data/Hora da Partida:</strong>
+                            <p>@Model.DataPartida</p>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <p><strong>Campeonato:</strong><br>@Model.CampeonatoPartida</p>
+                        <strong>Campeonato:</strong>
+                        <p>@Model.CampeonatoPartida</p>
                     </div>
 
                     <hr>
@@ -66,12 +261,12 @@
                     @if (!string.IsNullOrEmpty(Model.ResultadoAnalise))
                     {
                         <div class="mb-4">
-                            <p><strong>Resultado da Análise:</strong></p>
+                            <strong>Resultado da Análise:</strong>
                             <p class="alert alert-info">@Model.ResultadoAnalise</p>
                         </div>
                     }
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 mt-4">
                         <a asp-action="Edit" asp-route-id="@Model.IdDenuncia" class="btn btn-warning">
                             <i class="bi bi-pencil"></i> Editar
                         </a>

@@ -5,75 +5,637 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Knowball</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1d24;
+            --bg-footer: #0a0d11;
+            --accent-primary: #00d9a3;
+            --accent-secondary: #00b386;
+            --accent-glow: rgba(0, 217, 163, 0.15);
+            --text-primary: #e8e9ed;
+            --text-secondary: #a0a4b8;
+            --text-muted: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* Navbar Moderna */
+        .navbar-modern {
+            background: linear-gradient(135deg, var(--bg-nav) 0%, var(--bg-secondary) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        /* Logo Section */
+        .navbar-brand-modern {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .navbar-brand-modern:hover {
+                transform: translateY(-2px);
+            }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px var(--accent-glow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar-brand-modern:hover .brand-icon {
+            transform: rotate(-5deg) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 217, 163, 0.4);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .brand-tagline {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Navigation Links */
+        .navbar-nav-modern {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-item-modern {
+            position: relative;
+        }
+
+        .nav-link-modern {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .nav-link-modern::before {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--accent-primary), #00ffc8);
+                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .nav-link-modern:hover {
+                color: var(--accent-primary);
+                background-color: rgba(0, 217, 163, 0.08);
+            }
+
+                .nav-link-modern:hover::before {
+                    width: 80%;
+                }
+
+            .nav-link-modern.active {
+                color: var(--accent-primary);
+                background: linear-gradient(135deg, rgba(0, 217, 163, 0.15) 0%, rgba(0, 217, 163, 0.05) 100%);
+                border: 1px solid rgba(0, 217, 163, 0.2);
+            }
+
+                .nav-link-modern.active::before {
+                    width: 80%;
+                }
+
+            .nav-link-modern i {
+                font-size: 1.1rem;
+            }
+
+        /* Mobile Menu Toggle */
+        .navbar-toggler-modern {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+            .navbar-toggler-modern:hover {
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+
+        /* Responsive Design */
+        @@media (max-width: 992px) {
+            .navbar-toggler-modern {
+                display: block;
+            }
+
+            .navbar-nav-modern {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, var(--bg-nav) 0%, var(--bg-secondary) 100%);
+                border-bottom: 1px solid var(--border-color);
+                flex-direction: column;
+                padding: 16px 24px;
+                gap: 8px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            }
+
+                .navbar-nav-modern.show {
+                    display: flex;
+                }
+
+            .nav-link-modern {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        /* Content Area */
+        .main-content {
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Footer */
+        /* Footer Container */
+        .footer-knowball {
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-footer) 100%);
+            border-top: 1px solid var(--border-color);
+            margin-top: 80px;
+            padding: 60px 0 0 0;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Footer Grid */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        /* Brand Section */
+        .footer-brand {
+            max-width: 400px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .footer-logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .footer-brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .footer-brand-tagline {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .footer-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Footer Sections */
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-title {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+            .footer-links li a {
+                color: var(--text-secondary);
+                text-decoration: none;
+                font-size: 0.95rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                padding: 4px 0;
+            }
+
+                .footer-links li a:hover {
+                    color: var(--accent-primary);
+                    transform: translateX(4px);
+                }
+
+                .footer-links li a i {
+                    font-size: 1rem;
+                    opacity: 0.7;
+                }
+
+        /* Footer Divider */
+        .footer-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color) 20%, var(--border-color) 80%, transparent);
+            margin-bottom: 24px;
+        }
+
+        /* Footer Bottom */
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-bottom-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s;
+        }
+
+            .footer-bottom-link:hover {
+                color: var(--accent-primary);
+            }
+
+        .footer-separator {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .footer-bottom-right {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .footer-dev strong {
+            color: var(--accent-primary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
+                max-width: 100%;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .footer-knowball {
+                padding: 40px 0 0 0;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .footer-bottom-left {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .footer-separator {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .footer-logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+
+            .footer-brand-name {
+                font-size: 1.5rem;
+            }
+
+            .footer-description {
+                font-size: 0.9rem;
+            }
+        }
+
+    </style>
 </head>
-<body class="dark-theme">
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-trophy-fill" style="color: #00d4ff;"></i>
-                    <span style="color: #ffffff; font-weight: bold; margin-left: 8px;">Knowball</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house-door"></i> Início
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Campeonato" asp-action="Index">
-                                <i class="bi bi-trophy"></i> Campeonatos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Equipe" asp-action="Index">
-                                <i class="bi bi-people-fill"></i> Equipes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Arbitro" asp-action="Index">
-                                <i class="bi bi-person-badge"></i> Árbitros
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Partida" asp-action="Index">
-                                <i class="bi bi-calendar-event"></i> Partidas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Denuncia" asp-action="Index">
-                                <i class="bi bi-exclamation-triangle"></i> Denúncias
-                            </a>
-                        </li>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar-modern">
+        <div class="navbar-container">
+            <!-- Logo -->
+            <a href="@Url.Action("Index", "Home")" class="navbar-brand-modern">
+                <div class="brand-icon">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">Knowball</span>
+                    <span class="brand-tagline">Gestão Esportiva</span>
+                </div>
+            </a>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="navbar-toggler-modern" type="button" onclick="toggleMobileMenu()">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <ul class="navbar-nav-modern" id="navbarNav">
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Home")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <i class="bi bi-house-door"></i>
+                        <span>Início</span>
+                    </a>
+                </li>
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Campeonato")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Campeonato" ? "active" : "")">
+                        <i class="bi bi-trophy"></i>
+                        <span>Campeonatos</span>
+                    </a>
+                </li>
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Equipe")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Equipe" ? "active" : "")">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Equipes</span>
+                    </a>
+                </li>
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Arbitro")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Arbitro" ? "active" : "")">
+                        <i class="bi bi-person-badge"></i>
+                        <span>Árbitros</span>
+                    </a>
+                </li>
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Partida")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Partida" ? "active" : "")">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Partidas</span>
+                    </a>
+                </li>
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Arbitragem")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Arbitragem" ? "active" : "")">
+                        <i class="bi bi-clipboard-check"></i>
+                        <span>Arbitragem</span>
+                    </a>
+                </li>
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Participacao")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Participacao" ? "active" : "")">
+                        <i class="bi bi-diagram-3"></i>
+                        <span>Participação</span>
+                    </a>
+                </li>
+                <li class="nav-item-modern">
+                    <a href="@Url.Action("Index", "Denuncia")" class="nav-link-modern @(ViewContext.RouteData.Values["controller"]?.ToString() == "Denuncia" ? "active" : "")">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Denúncias</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <!-- Footer Moderno -->
+    <footer class="footer-knowball">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <!-- Seção 1: Branding e Descrição -->
+                <div class="footer-section footer-brand">
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">
+                            <i class="bi bi-trophy-fill"></i>
+                        </div>
+                        <div class="footer-logo-text">
+                            <span class="footer-brand-name">Knowball</span>
+                            <span class="footer-brand-tagline">Gestão Esportiva</span>
+                        </div>
+                    </div>
+                    <p class="footer-description">
+                        Sistema completo para gerenciamento de campeonatos de futebol das categorias de base.
+                        Controle equipes, árbitros, partidas e muito mais em uma plataforma integrada.
+                    </p>
+                    <div class="footer-copyright">
+                        Copyright © 2025 - Todos os direitos reservados
+                    </div>
+                </div>
+
+                <!-- Seção 2: Sistema -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Sistema</h3>
+                    <ul class="footer-links">
+                        <li><a href="@Url.Action("Index", "Campeonato")"><i class="bi bi-trophy"></i> Campeonatos</a></li>
+                        <li><a href="@Url.Action("Index", "Equipe")"><i class="bi bi-people-fill"></i> Equipes</a></li>
+                        <li><a href="@Url.Action("Index", "Arbitro")"><i class="bi bi-person-badge"></i> Árbitros</a></li>
+                        <li><a href="@Url.Action("Index", "Partida")"><i class="bi bi-calendar-event"></i> Partidas</a></li>
+                    </ul>
+                </div>
+
+                <!-- Seção 3: Funcionalidades -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Funcionalidades</h3>
+                    <ul class="footer-links">
+                        <li><a href="@Url.Action("Index", "Arbitragem")"><i class="bi bi-clipboard-check"></i> Arbitragem</a></li>
+                        <li><a href="@Url.Action("Index", "Participacao")"><i class="bi bi-diagram-3"></i> Participação</a></li>
+                        <li><a href="@Url.Action("Index", "Denuncia")"><i class="bi bi-exclamation-triangle"></i> Denúncias</a></li>
+                        <li><a href="@Url.Action("Index", "Home")"><i class="bi bi-graph-up"></i> Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <!-- Seção 4: Mais Informações -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Mais Informações</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="bi bi-info-circle"></i> Sobre o Projeto</a></li>
+                        <li><a href="#"><i class="bi bi-book"></i> Documentação</a></li>
+                        <li><a href="#"><i class="bi bi-github"></i> Repositório GitHub</a></li>
+                        <li><a href="#"><i class="bi bi-mortarboard"></i> FIAP</a></li>
                     </ul>
                 </div>
             </div>
-        </nav>
-    </header>
 
-    <div class="container-fluid min-vh-100 d-flex flex-column">
-        <main role="main" class="pb-3 flex-grow-1 pt-4">
-            @RenderBody()
-        </main>
-    </div>
+            <!-- Linha Divisória -->
+            <div class="footer-divider"></div>
 
-    <footer class="border-top border-secondary bg-dark text-light mt-5 py-4">
-        <div class="container text-center">
-            <p class="mb-2">&copy; 2025 - Knowball - Sistema de Gerenciamento de Futebol</p>
-            <p class="mb-0"><small class="text-muted"><strong>FIAP - RM560967</strong></small></p>
+            <!-- Bottom Bar -->
+            <div class="footer-bottom">
+                <div class="footer-bottom-left">
+                    <a href="#" class="footer-bottom-link">Política de Privacidade</a>
+                    <span class="footer-separator">•</span>
+                    <a href="#" class="footer-bottom-link">Termos de Serviço</a>
+                </div>
+            </div>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function toggleMobileMenu() {
+            const navbarNav = document.getElementById('navbarNav');
+            navbarNav.classList.toggle('show');
+        }
+
+        // Fechar menu mobile ao clicar em um link
+        document.querySelectorAll('.nav-link-modern').forEach(link => {
+            link.addEventListener('click', () => {
+                const navbarNav = document.getElementById('navbarNav');
+                if (navbarNav.classList.contains('show')) {
+                    navbarNav.classList.remove('show');
+                }
+            });
+        });
+
+        // Fechar menu mobile ao clicar fora
+        document.addEventListener('click', (e) => {
+            const navbarNav = document.getElementById('navbarNav');
+            const toggler = document.querySelector('.navbar-toggler-modern');
+            if (!navbarNav.contains(e.target) && !toggler.contains(e.target)) {
+                navbarNav.classList.remove('show');
+            }
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

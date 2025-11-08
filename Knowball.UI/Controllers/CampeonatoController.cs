@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Knowball.UI.Controllers
 {
-    [Route("[controller]")]
     public class CampeonatoController : Controller
     {
         private readonly ICampeonatoService _service;
@@ -17,7 +16,7 @@ namespace Knowball.UI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet(""), HttpGet("Index"), Route("")]
+        // GET: Campeonato/Index
         public IActionResult Index()
         {
             try
@@ -41,10 +40,12 @@ namespace Knowball.UI.Controllers
             }
         }
 
-        [HttpGet("criar")]
+        // GET: Campeonato/Create
         public IActionResult Create() => View(new CampeonatoViewModel());
 
-        [HttpPost("criar"), ValidateAntiForgeryToken]
+        // POST: Campeonato/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(CampeonatoViewModel vm)
         {
             try
@@ -65,13 +66,17 @@ namespace Knowball.UI.Controllers
             }
         }
 
-        [HttpGet("editar/{id}")]
+        // GET: Campeonato/Edit/5
         public IActionResult Edit(int id)
         {
             try
             {
                 var campeonato = _service.ObterPorId(id);
-                if (campeonato == null) return NotFound();
+                if (campeonato == null)
+                {
+                    TempData["Erro"] = "Campeonato não encontrado.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 var vm = new CampeonatoViewModel
                 {
@@ -85,19 +90,34 @@ namespace Knowball.UI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter campeonato {Id}", id);
+                TempData["Erro"] = "Erro ao carregar campeonato.";
                 return RedirectToAction(nameof(Index));
             }
         }
 
-        [HttpPost("editar/{id}"), ValidateAntiForgeryToken]
+        // POST: Campeonato/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, CampeonatoViewModel vm)
         {
             try
             {
-                if (id != vm.IdCampeonato) return BadRequest();
+                if (id != vm.IdCampeonato)
+                {
+                    TempData["Erro"] = "ID inválido.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 if (!ModelState.IsValid) return View(vm);
 
-                var dto = new CampeonatoDto { IdCampeonato = vm.IdCampeonato, Nome = vm.Nome, Ano = vm.Ano, Categoria = vm.Categoria };
+                var dto = new CampeonatoDto
+                {
+                    IdCampeonato = vm.IdCampeonato,
+                    Nome = vm.Nome,
+                    Ano = vm.Ano,
+                    Categoria = vm.Categoria
+                };
+
                 _service.AtualizarCampeonato(id, dto);
                 _logger.LogInformation("Campeonato {Id} atualizado com sucesso", id);
                 TempData["Sucesso"] = "Campeonato atualizado com sucesso!";
@@ -111,13 +131,17 @@ namespace Knowball.UI.Controllers
             }
         }
 
-        [HttpGet("deletar/{id}")]
+        // GET: Campeonato/Delete/5
         public IActionResult Delete(int id)
         {
             try
             {
                 var campeonato = _service.ObterPorId(id);
-                if (campeonato == null) return NotFound();
+                if (campeonato == null)
+                {
+                    TempData["Erro"] = "Campeonato não encontrado.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 var vm = new CampeonatoViewModel
                 {
@@ -131,11 +155,15 @@ namespace Knowball.UI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter campeonato {Id}", id);
+                TempData["Erro"] = "Erro ao carregar campeonato.";
                 return RedirectToAction(nameof(Index));
             }
         }
 
-        [HttpPost("deletar/{id}"), ValidateAntiForgeryToken]
+        // POST: Campeonato/Delete/5
+        [HttpPost]
+        [ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
             try
