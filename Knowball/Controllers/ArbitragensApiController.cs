@@ -4,133 +4,212 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Knowball.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/arbitragens")] 
-    public class ArbitragensApiController : ControllerBase 
+    public class ArbitragensApiController : ControllerBase
     {
         private readonly IArbitragemService _arbitragemService;
 
         public ArbitragensApiController(IArbitragemService arbitragemService)
         {
-            _arbitragemService = arbitragemService ?? throw new ArgumentNullException(nameof(arbitragemService));
+            _arbitragemService = arbitragemService;
         }
 
         /// <summary>
-        /// Lista todas as arbitragens
-        /// GET: api/arbitragens
+        /// Retorna todas as arbitragens
         /// </summary>
         [HttpGet]
         public ActionResult<IEnumerable<ArbitragemDto>> GetAll()
         {
-            try
+            var arbitragens = _arbitragemService.ListarArbitragens();
+            var response = new
             {
-                var arbitragens = _arbitragemService.ListarArbitragens();
-                return Ok(arbitragens);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro ao listar arbitragens", error = ex.Message });
-            }
+                data = arbitragens,
+                links = new[]
+                {
+                    new { rel = "self", href = Url.Action(nameof(GetAll)), method = "GET" },
+                    new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" },
+                    new { rel = "search", href = Url.Action(nameof(Search)), method = "GET" }
+                }
+            };
+            return Ok(response);
         }
 
         /// <summary>
-        /// Obtém uma arbitragem específica por ID da Partida e ID do Árbitro
-        /// GET: api/arbitragens/{idPartida}/{idArbitro}
+        /// Retorna uma arbitragem específica por IdPartida e IdArbitro
         /// </summary>
         [HttpGet("{idPartida}/{idArbitro}")]
         public ActionResult<ArbitragemDto> GetByIds(int idPartida, int idArbitro)
         {
-            try
-            {
-                var arbitragem = _arbitragemService.ObterPorIds(idPartida, idArbitro);
-                if (arbitragem == null)
-                    return NotFound(new { message = "Arbitragem não encontrada" });
+            var arbitragem = _arbitragemService.ObterPorIds(idPartida, idArbitro);
+            if (arbitragem == null)
+                return NotFound(new { message = "Arbitragem não encontrada" });
 
-                return Ok(arbitragem);
-            }
-            catch (Exception ex)
+            var response = new
             {
-                return StatusCode(500, new { message = "Erro ao obter arbitragem", error = ex.Message });
-            }
+                data = arbitragem,
+                links = new[]
+                {
+                    new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida, idArbitro }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { idPartida, idArbitro }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida, idArbitro }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+            return Ok(response);
         }
 
         /// <summary>
         /// Cria uma nova arbitragem
-        /// POST: api/arbitragens
         /// </summary>
         [HttpPost]
         public ActionResult<ArbitragemDto> Create([FromBody] ArbitragemDto dto)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var created = _arbitragemService.CriarArbitragem(dto);
-                return CreatedAtAction(
-                    nameof(GetByIds),
-                    new { idPartida = created.IdPartida, idArbitro = created.IdArbitro },
-                    created
-                );
-            }
-            catch (ArgumentException ex)
+            var createdArbitragem = _arbitragemService.CriarArbitragem(dto);
+            var response = new
             {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro ao criar arbitragem", error = ex.Message });
-            }
+                data = createdArbitragem,
+                links = new[]
+                {
+                    new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+            return CreatedAtAction(nameof(GetByIds), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }, response);
         }
 
         /// <summary>
         /// Atualiza uma arbitragem existente
-        /// PUT: api/arbitragens/{idPartida}/{idArbitro}
         /// </summary>
         [HttpPut("{idPartida}/{idArbitro}")]
         public IActionResult Update(int idPartida, int idArbitro, [FromBody] ArbitragemDto dto)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                if (dto.IdPartida != idPartida || dto.IdArbitro != idArbitro)
-                    return BadRequest(new { message = "IDs não correspondem" });
+            if (idPartida != dto.IdPartida || idArbitro != dto.IdArbitro)
+                return BadRequest(new { message = "IDs incompatíveis" });
 
-                _arbitragemService.AtualizarArbitragem(idPartida, idArbitro, dto);
-                return NoContent();
-            }
-            catch (ArgumentException ex)
+            var arbitragem = _arbitragemService.ObterPorIds(idPartida, idArbitro);
+            if (arbitragem == null)
+                return NotFound(new { message = "Arbitragem não encontrada" });
+
+            _arbitragemService.AtualizarArbitragem(idPartida, idArbitro, dto);
+
+            var response = new
             {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro ao atualizar arbitragem", error = ex.Message });
-            }
+                message = "Arbitragem atualizada com sucesso",
+                links = new[]
+                {
+                    new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida, idArbitro }), method = "GET" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida, idArbitro }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+            return Ok(response);
         }
 
         /// <summary>
         /// Remove uma arbitragem
-        /// DELETE: api/arbitragens/{idPartida}/{idArbitro}
         /// </summary>
         [HttpDelete("{idPartida}/{idArbitro}")]
         public IActionResult Delete(int idPartida, int idArbitro)
         {
-            try
+            var arbitragem = _arbitragemService.ObterPorIds(idPartida, idArbitro);
+            if (arbitragem == null)
+                return NotFound(new { message = "Arbitragem não encontrada" });
+
+            _arbitragemService.RemoverArbitragem(idPartida, idArbitro);
+
+            var response = new
             {
-                _arbitragemService.RemoverArbitragem(idPartida, idArbitro);
-                return NoContent();
-            }
-            catch (ArgumentException ex)
+                message = "Arbitragem removida com sucesso",
+                links = new[]
+                {
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" },
+                    new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
+                }
+            };
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Busca arbitragens com paginação, ordenação e filtros
+        /// </summary>
+        [HttpGet("search")]
+        public ActionResult<object> Search(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null,
+            [FromQuery] int? idPartida = null,
+            [FromQuery] int? idArbitro = null,
+            [FromQuery] string? funcao = null
+        )
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
+
+            var query = _arbitragemService.ListarArbitragens().AsQueryable();
+
+            // Aplicar filtros
+            if (idPartida.HasValue)
+                query = query.Where(a => a.IdPartida == idPartida.Value);
+
+            if (idArbitro.HasValue)
+                query = query.Where(a => a.IdArbitro == idArbitro.Value);
+
+            if (!string.IsNullOrEmpty(funcao))
+                query = query.Where(a => a.Funcao.Contains(funcao, StringComparison.OrdinalIgnoreCase));
+
+            // Aplicar ordenação
+            query = orderBy?.ToLower() switch
             {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
+                "funcao" => query.OrderBy(a => a.Funcao),
+                "funcao_desc" => query.OrderByDescending(a => a.Funcao),
+                "idpartida" => query.OrderBy(a => a.IdPartida),
+                "idpartida_desc" => query.OrderByDescending(a => a.IdPartida),
+                "idarbitro" => query.OrderBy(a => a.IdArbitro),
+                "idarbitro_desc" => query.OrderByDescending(a => a.IdArbitro),
+                _ => query.OrderBy(a => a.IdPartida).ThenBy(a => a.IdArbitro)
+            };
+
+            var totalCount = query.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var results = query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new
             {
-                return StatusCode(500, new { message = "Erro ao remover arbitragem", error = ex.Message });
-            }
+                data = results,
+                pagination = new
+                {
+                    currentPage = page,
+                    pageSize,
+                    totalCount,
+                    totalPages
+                },
+                links = new[]
+                {
+                    new { rel = "self", href = Url.Action(nameof(Search), new { page, pageSize, orderBy, idPartida, idArbitro, funcao }), method = "GET" },
+                    new { rel = "first", href = Url.Action(nameof(Search), new { page = 1, pageSize, orderBy, idPartida, idArbitro, funcao }), method = "GET" },
+                    new { rel = "last", href = Url.Action(nameof(Search), new { page = totalPages, pageSize, orderBy, idPartida, idArbitro, funcao }), method = "GET" },
+                    new { rel = "next", href = page < totalPages ? Url.Action(nameof(Search), new { page = page + 1, pageSize, orderBy, idPartida, idArbitro, funcao }) : null, method = "GET" },
+                    new { rel = "previous", href = page > 1 ? Url.Action(nameof(Search), new { page = page - 1, pageSize, orderBy, idPartida, idArbitro, funcao }) : null, method = "GET" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" },
+                    new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
+                }
+            };
+
+            return Ok(response);
         }
     }
 }
