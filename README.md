@@ -64,6 +64,10 @@ O Knowball é uma aplicação Web API desenvolvida para gerenciar informações 
 - **Navegação personalizada** com navbar e breadcrumbs
 - **ViewModels** para transferência otimizada de dados
 
+
+![Imagem](https://drive.google.com/uc?export=view&id=1Osx4A7PAEK_vUS3Lg1mltelt3ZDTYaWM)
+
+
 ### Requisitos funcionais
 
 - `RF01`: cadastrar, listar, atualizar e remover campeonatos
