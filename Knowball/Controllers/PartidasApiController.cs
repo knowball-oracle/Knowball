@@ -1,15 +1,16 @@
-﻿using Knowball.Application.Services;
+﻿using Knowball.Application.DTOs;
+using Knowball.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Knowball.Application.DTOs
+namespace Knowball.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class PartidaController : ControllerBase
+    [Route("api/partidas")] 
+    public class PartidasApiController : ControllerBase 
     {
         private readonly IPartidaService _partidaService;
 
-        public PartidaController(IPartidaService partidaService)
+        public PartidasApiController(IPartidaService partidaService)
         {
             _partidaService = partidaService;
         }

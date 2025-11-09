@@ -38,7 +38,7 @@ namespace Knowball.Application.Services
                 {
                     IdEquipe = e.IdEquipe,
                     Nome = e.Nome,
-                    Cidade = e.Cidade, // Ajuste se Categoria não for Cidade!
+                    Cidade = e.Cidade,
                     Estado = e.Estado
                 });
         }

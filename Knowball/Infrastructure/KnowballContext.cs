@@ -6,13 +6,13 @@ namespace Knowball.Infrastructure
 {
     public class KnowballContext(DbContextOptions<KnowballContext> options) : DbContext(options)
     {
-    public DbSet<Campeonato> Campeonatos { get; set; }
-    public DbSet<Equipe> Equipes { get; set; }
-    public DbSet<Arbitro> Arbitros { get; set; }
-    public DbSet<Partida> Partidas { get; set; }
-    public DbSet<Participacao> Participacoes { get; set; }
-    public DbSet<Arbitragem> Arbitragens { get; set; }
-    public DbSet<Denuncia> Denuncias { get; set; }
+        public DbSet<Campeonato> Campeonatos { get; set; }
+        public DbSet<Equipe> Equipes { get; set; }
+        public DbSet<Arbitro> Arbitros { get; set; }
+        public DbSet<Partida> Partidas { get; set; }
+        public DbSet<Participacao> Participacoes { get; set; }
+        public DbSet<Arbitragem> Arbitragens { get; set; }
+        public DbSet<Denuncia> Denuncias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

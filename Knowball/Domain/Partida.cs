@@ -13,12 +13,10 @@ namespace Knowball.Models
         public int PlacarMandante { get; set; }
         public int PlacarVisitante { get; set; }
 
-        public ICollection<Participacao> Participacoes { get; set; } = new List<Participacao>();
+        public ICollection<Participacao>? Participacoes { get; set; }
 
         public bool PlacarValido() => PlacarMandante >= 0 && PlacarVisitante >= 0;
 
         public bool DataValida() => DataPartida >= DateTime.Today;
-
-        public bool TemDuasEquipes() => Participacoes != null && Participacoes.Count == 2;
     }
 }

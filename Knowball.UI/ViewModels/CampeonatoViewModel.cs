@@ -6,7 +6,7 @@ namespace Knowball.UI.ViewModels
     {
         public int IdCampeonato { get; set; }
 
-        [Required(ErrorMessage = "O noem do campeonato é obrigatório")]
+        [Required(ErrorMessage = "O nome do campeonato é obrigatório")]
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres")]
         [Display(Name = "Nome do Campeonato")]
         public string Nome { get; set; } = string.Empty;

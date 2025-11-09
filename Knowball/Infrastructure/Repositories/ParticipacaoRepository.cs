@@ -33,7 +33,7 @@ namespace Knowball.Infrastructure.Repositories
         public void Remove(int idPartida, int idEquipe)
         {
             var entity = GetByIds(idPartida, idEquipe);
-            if(entity != null)
+            if (entity != null)
             {
                 _context.Participacoes.Remove(entity);
                 _context.SaveChanges();

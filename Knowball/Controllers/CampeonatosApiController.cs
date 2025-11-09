@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Knowball.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class CampeonatoController : ControllerBase
+    [Route("api/campeonatos")]
+    public class CampeonatosApiController : ControllerBase
     {
         private readonly ICampeonatoService _campeonatoService;
 
-        public CampeonatoController(ICampeonatoService campeonatoService)
+        public CampeonatosApiController(ICampeonatoService campeonatoService)
         {
             _campeonatoService = campeonatoService;
         }

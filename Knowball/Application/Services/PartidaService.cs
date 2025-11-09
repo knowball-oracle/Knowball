@@ -63,7 +63,7 @@ namespace Knowball.Application.Services
         public PartidaDto ObterPorId(int id)
         {
             var p = _repository.GetById(id);
-            if (p == null) throw new BusinessException("Partida não encontrada");
+            if (p == null) return null;
 
             return new PartidaDto
             {

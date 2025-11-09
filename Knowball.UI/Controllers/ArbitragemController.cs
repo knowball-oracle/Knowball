@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Knowball.UI.Controllers
 {
-    [Route("[controller]")]
     public class ArbitragemController : Controller
     {
         private readonly IArbitragemService _arbitragemService;
@@ -13,8 +12,11 @@ namespace Knowball.UI.Controllers
         private readonly IArbitroService _arbitroService;
         private readonly ILogger<ArbitragemController> _logger;
 
-        public ArbitragemController(IArbitragemService arbitragemService, IPartidaService partidaService,
-            IArbitroService arbitroService, ILogger<ArbitragemController> logger)
+        public ArbitragemController(
+            IArbitragemService arbitragemService,
+            IPartidaService partidaService,
+            IArbitroService arbitroService,
+            ILogger<ArbitragemController> logger)
         {
             _arbitragemService = arbitragemService ?? throw new ArgumentNullException(nameof(arbitragemService));
             _partidaService = partidaService ?? throw new ArgumentNullException(nameof(partidaService));
@@ -22,7 +24,7 @@ namespace Knowball.UI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet(""), HttpGet("Index"), Route("")]
+        // GET: Arbitragem/Index
         public IActionResult Index()
         {
             try
@@ -32,18 +34,27 @@ namespace Knowball.UI.Controllers
 
                 foreach (var a in arbitragens)
                 {
-                    var partida = _partidaService.ObterPorId(a.IdPartida);
-                    var arbitro = _arbitroService.ObterPorId(a.IdArbitro);
-
-                    viewModels.Add(new ArbitragemViewModel
+                    try
                     {
-                        IdPartida = a.IdPartida,
-                        IdArbitro = a.IdArbitro,
-                        Funcao = a.Funcao,
-                        NomeArbitro = arbitro?.Nome,
-                        LocalPartida = partida?.Local,
-                        DataPartida = partida?.DataPartida.ToString("dd/MM/yyyy HH:mm")
-                    });
+                        var partida = _partidaService.ObterPorId(a.IdPartida);
+                        var arbitro = _arbitroService.ObterPorId(a.IdArbitro);
+
+                        viewModels.Add(new ArbitragemViewModel
+                        {
+                            IdPartida = a.IdPartida,
+                            IdArbitro = a.IdArbitro,
+                            Funcao = a.Funcao,
+                            NomeArbitro = arbitro?.Nome ?? "Não informado",
+                            LocalPartida = partida?.Local ?? "Não informado",
+                            DataPartida = partida != null ? partida.DataPartida.ToString("dd/MM/yyyy HH:mm") : "Não informado"
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Erro ao mapear arbitragem IdPartida: {IdPartida}, IdArbitro: {IdArbitro}",
+                            a.IdPartida, a.IdArbitro);
+                        continue;
+                    }
                 }
 
                 return View(viewModels);
@@ -51,12 +62,13 @@ namespace Knowball.UI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao listar arbitragens");
-                TempData["Erro"] = "Erro ao listar arbitragens";
-                return RedirectToAction("Index", "Home");
+                TempData["Erro"] = "Erro ao listar arbitragens: " + ex.Message;
+                return View(new List<ArbitragemViewModel>());
             }
         }
 
-        [HttpGet("criar")]
+
+        // GET: Arbitragem/Create
         public IActionResult Create()
         {
             var partidas = _partidaService.ListarPartidas();
@@ -77,7 +89,9 @@ namespace Knowball.UI.Controllers
             return View(new ArbitragemViewModel());
         }
 
-        [HttpPost("criar"), ValidateAntiForgeryToken]
+        // POST: Arbitragem/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(ArbitragemViewModel vm)
         {
             try
@@ -108,6 +122,7 @@ namespace Knowball.UI.Controllers
                     IdArbitro = vm.IdArbitro,
                     Funcao = vm.Funcao
                 };
+
                 _arbitragemService.CriarArbitragem(dto);
                 TempData["Sucesso"] = "Arbitragem criada com sucesso!";
                 return RedirectToAction(nameof(Index));
@@ -115,41 +130,66 @@ namespace Knowball.UI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar arbitragem");
-                ModelState.AddModelError("", "Erro ao criar arbitragem.");
+                ModelState.AddModelError("", "Erro ao criar arbitragem: " + ex.Message);
+
+                var partidas = _partidaService.ListarPartidas();
+                ViewBag.Partidas = partidas.Select(p => new PartidaViewModel
+                {
+                    IdPartida = p.IdPartida,
+                    Local = p.Local,
+                    DataPartida = p.DataPartida
+                }).ToList();
+
+                var arbitros = _arbitroService.ListarArbitros();
+                ViewBag.Arbitros = arbitros.Select(a => new ArbitroViewModel
+                {
+                    IdArbitro = a.IdArbitro,
+                    Nome = a.Nome
+                }).ToList();
+
                 return View(vm);
             }
         }
 
-        [HttpGet("deletar")]
+        // GET: Arbitragem/Delete
         public IActionResult Delete(int idPartida, int idArbitro)
         {
             try
             {
                 var arbitragem = _arbitragemService.ObterPorIds(idPartida, idArbitro);
-                if (arbitragem == null) return NotFound();
+                if (arbitragem == null)
+                {
+                    TempData["Erro"] = "Arbitragem não encontrada.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 var partida = _partidaService.ObterPorId(arbitragem.IdPartida);
                 var arbitro = _arbitroService.ObterPorId(arbitragem.IdArbitro);
-                
+
                 var vm = new ArbitragemViewModel
                 {
                     IdPartida = arbitragem.IdPartida,
                     IdArbitro = arbitragem.IdArbitro,
                     Funcao = arbitragem.Funcao,
-                    NomeArbitro = arbitro?.Nome,
-                    LocalPartida = partida?.Local,
-                    DataPartida = partida?.DataPartida.ToString("dd/MM/yyyy HH:mm")
+                    NomeArbitro = arbitro?.Nome ?? "Não informado",
+                    LocalPartida = partida?.Local ?? "Não informado",
+                    DataPartida = partida?.DataPartida.ToString("dd/MM/yyyy HH:mm") ?? "Não informado"
                 };
+
                 return View(vm);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Erro ao obter arbitragem");
+                _logger.LogError(ex, "Erro ao obter arbitragem");
+                TempData["Erro"] = "Erro ao carregar arbitragem.";
                 return RedirectToAction(nameof(Index));
             }
         }
 
-        [HttpPost("deletar"), ValidateAntiForgeryToken]
+        // POST: Arbitragem/Delete
+        [HttpPost]
+        [ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int idPartida, int idArbitro)
         {
             try
@@ -160,8 +200,8 @@ namespace Knowball.UI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Erro ao remover arbitragem");
-                TempData["Erro"] = "Erro ao remover arbitragem.";
+                _logger.LogError(ex, "Erro ao remover arbitragem");
+                TempData["Erro"] = "Erro ao remover arbitragem: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }
         }

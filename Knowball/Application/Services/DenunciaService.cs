@@ -51,6 +51,7 @@ namespace Knowball.Application.Services
             var denuncias = _repository.GetAll();
             return denuncias.Select(d => new DenunciaDto
             {
+                IdDenuncia = d.IdDenuncia,
                 IdPartida = d.IdPartida,
                 IdArbitro = d.IdArbitro,
                 Protocolo = d.Protocolo,
@@ -64,7 +65,7 @@ namespace Knowball.Application.Services
         public DenunciaDto ObterPorId(int id)
         {
             var d = _repository.GetById(id);
-            if (d == null) throw new BusinessException("Denúncia não encontrada");
+            if (d == null) return null;
 
             return new DenunciaDto
             {

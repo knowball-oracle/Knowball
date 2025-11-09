@@ -5,15 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace Knowball.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class DenunciaController : ControllerBase
+    [Route("api/denuncias")]
+    public class DenunciasApiController(IDenunciaService denunciaService) : ControllerBase
     {
-        private readonly IDenunciaService _denunciaService;
-
-        public DenunciaController(IDenunciaService denunciaService)
-        {
-            _denunciaService = denunciaService;
-        }
+        private readonly IDenunciaService _denunciaService = denunciaService;
 
         [HttpGet]
         public ActionResult<IEnumerable<DenunciaDto>> GetAll()

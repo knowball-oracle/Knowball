@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Knowball.UI.Controllers
 {
-    [Route("[controller]")]
     public class PartidaController : Controller
     {
         private readonly IPartidaService _partidaService;
@@ -22,7 +21,7 @@ namespace Knowball.UI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet(""), HttpGet("Index"), Route("")]
+        // GET: Partida/Index
         public IActionResult Index()
         {
             try
@@ -72,20 +71,20 @@ namespace Knowball.UI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao listar partidas");
-                // Retorna lista vazia ao invés de redirecionar
                 return View(new List<PartidaViewModel>());
             }
         }
 
-
-        [HttpGet("criar")]
+        // GET: Partida/Create
         public IActionResult Create()
         {
             CarregarDadosParaView();
             return View(new PartidaViewModel());
         }
 
-        [HttpPost("criar"), ValidateAntiForgeryToken]
+        // POST: Partida/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(PartidaViewModel vm)
         {
             try
@@ -96,7 +95,6 @@ namespace Knowball.UI.Controllers
                     return View(vm);
                 }
 
-                // Validação: Equipes diferentes
                 if (vm.IdEquipe1 == vm.IdEquipe2)
                 {
                     ModelState.AddModelError("", "A equipe mandante deve ser diferente da visitante.");
@@ -129,13 +127,17 @@ namespace Knowball.UI.Controllers
             }
         }
 
-        [HttpGet("editar/{id}")]
+        // GET: Partida/Edit/5
         public IActionResult Edit(int id)
         {
             try
             {
                 var partida = _partidaService.ObterPorId(id);
-                if (partida == null) return NotFound();
+                if (partida == null)
+                {
+                    TempData["Erro"] = "Partida não encontrada.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 var campeonato = _campeonatoService.ObterPorId(partida.IdCampeonato);
                 var equipe1 = _equipeService.ObterPorId(partida.IdEquipe1);
@@ -167,19 +169,25 @@ namespace Knowball.UI.Controllers
             }
         }
 
-        [HttpPost("editar/{id}"), ValidateAntiForgeryToken]
+        // POST: Partida/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, PartidaViewModel vm)
         {
             try
             {
-                if (id != vm.IdPartida) return BadRequest();
+                if (id != vm.IdPartida)
+                {
+                    TempData["Erro"] = "ID inválido.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 if (!ModelState.IsValid)
                 {
                     CarregarDadosParaView();
                     return View(vm);
                 }
 
-                // Validação: Equipes diferentes
                 if (vm.IdEquipe1 == vm.IdEquipe2)
                 {
                     ModelState.AddModelError("", "A equipe mandante deve ser diferente da visitante.");
@@ -213,13 +221,17 @@ namespace Knowball.UI.Controllers
             }
         }
 
-        [HttpGet("deletar/{id}")]
+        // GET: Partida/Delete/5
         public IActionResult Delete(int id)
         {
             try
             {
                 var partida = _partidaService.ObterPorId(id);
-                if (partida == null) return NotFound();
+                if (partida == null)
+                {
+                    TempData["Erro"] = "Partida não encontrada.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 var campeonato = _campeonatoService.ObterPorId(partida.IdCampeonato);
                 var equipe1 = _equipeService.ObterPorId(partida.IdEquipe1);
@@ -235,9 +247,9 @@ namespace Knowball.UI.Controllers
                     Local = partida.Local,
                     PlacarMandante = partida.PlacarMandante,
                     PlacarVisitante = partida.PlacarVisitante,
-                    NomeCampeonato = campeonato?.Nome,
-                    NomeEquipe1 = equipe1?.Nome,
-                    NomeEquipe2 = equipe2?.Nome
+                    NomeCampeonato = campeonato?.Nome ?? "Não informado",
+                    NomeEquipe1 = equipe1?.Nome ?? "Não informado",
+                    NomeEquipe2 = equipe2?.Nome ?? "Não informado"
                 };
 
                 return View(vm);
@@ -250,7 +262,10 @@ namespace Knowball.UI.Controllers
             }
         }
 
-        [HttpPost("deletar/{id}"), ValidateAntiForgeryToken]
+        // POST: Partida/Delete/5
+        [HttpPost]
+        [ActionName("Delete")] // ← IMPORTANTE
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
             try

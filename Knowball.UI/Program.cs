@@ -33,6 +33,7 @@ builder.Services.AddScoped<IArbitragemService, ArbitragemService>();
 builder.Services.AddScoped<IDenunciaService, DenunciaService>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -53,5 +54,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllers();
 
 app.Run();

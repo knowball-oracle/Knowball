@@ -31,7 +31,7 @@ namespace Knowball.Infrastructure.Repositories
         public void Remove(int id)
         {
             var entity = _context.Partidas.Find(id);
-            if(entity != null)
+            if (entity != null)
             {
                 _context.Partidas.Remove(entity);
                 _context.SaveChanges();
