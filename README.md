@@ -41,7 +41,7 @@ O Knowball é uma aplicação Web API desenvolvida para gerenciar informações 
 - **Equipes**: registro de times participantes com informações de localização
 - **Partidas**: controle de jogos realizados com data, horário e local
 - **Árbitros**: gestão de árbitros com status e funções.
-- **Arbitragem**: designação de árbitros para paridas (Principal, Assistente 1, Assistente 2, Quarto Árbitro)
+- **Arbitragem**: designação de árbitros para partidas (Principal, Assistente 1, Assistente 2, Quarto Árbitro)
 - **Participação**: controle de equipes em partidas (Mandante/Visitante)
 - **Denúncias**: sistema de registro e acompanhamento de denúncias relacionadas a partidas
 
