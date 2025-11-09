@@ -16,6 +16,23 @@ O Knowball busca resolver os desafios comuns encontrados na gestão e organizaç
 - Dificuldade de acompanhar e registrar a atuação dos árbitros e suas respectivas atribuições em cada partida.
 - Falta de **APIs RESTful flexíveis** para integração com outras ferramentas e sistemas de gestão esportiva.
 
+## Visão geral
+
+O **Knowball** é uma solução integrada desenvolvida em **ASP .NET Core** que combina uma **Web API RESTful** e uma **interface web MVC** para a gestão completa de campeonatos esportivos, especialmente voltada para as categorias de base do futebol brasileiro masculino.
+
+### Principais desafios resolvidos
+
+✅ **Gestão de denúncias** relacionadas à manipulação de partida com sistema de protocolo único.
+
+✅ **Plataforma unificada** para controle de campeonatos, equipes, partidas e participações.
+
+✅ **Acompanhamento centralizado** da atuação e designação de árbitros.
+
+✅ **APIs RESTful completas** com HATEOAS, paginação, ordenação e filtros avançados.
+
+✅ **Interface web intuitiva** para gestão visual dos dados.
+
+
 ## Escopo da aplicação
 
 O Knowball é uma aplicação Web API desenvolvida para gerenciar informações relacionadas a:
@@ -27,6 +44,25 @@ O Knowball é uma aplicação Web API desenvolvida para gerenciar informações 
 - **Arbitragem**: designação de árbitros para paridas (Principal, Assistente 1, Assistente 2, Quarto Árbitro)
 - **Participação**: controle de equipes em partidas (Mandante/Visitante)
 - **Denúncias**: sistema de registro e acompanhamento de denúncias relacionadas a partidas
+
+## **Novas funcionalidades implementadas**
+
+### Web API RESTful
+
+- **CRUD completo** para todos os domínios (Campeonatos, Equipes, Partidas, Árbitros, Denúncias, Arbitragens e Participações)
+
+- **Endpoint Search** em cada domínio com:
+    - 📄 **Paginação** (controle de `page` e `pageSize`)
+    - 🔄 **Ordenação** customizável por múltiplos campos
+    - 🔍 **Filtros avançados** (por nome, status, data, local, etc.)
+
+### Interface WEB (MVC)
+
+- **Dashboard visual** para gestão de denúncias
+- **CRUD completo** com validações client-side e server-side
+- **Layout responsivo** com Bootstrap 5
+- **Navegação personalizada** com navbar e breadcrumbs
+- **ViewModels** para transferência otimizada de dados
 
 ### Requisitos funcionais
 
@@ -71,10 +107,37 @@ O projeto segue os princípios da **Clean Architecture**, garantindo separação
 ┃ 📂 Migrations
 ┃ 📜 appsettings.json
 ┃ 📜 Knowball.http
-┗ 📜 Program.cs 
+┗ 📜 Program.cs
+
+📦 Knowball.UI (MVC Web Application)
+┣ 📂 Controllers # Controllers MVC
+┃ ┣ 📜 DenunciaController.cs
+┃ ┣ 📜 ArbitroController.cs
+┃ ┗ 📜 ... (outros)
+┣ 📂 ViewModels # ViewModels MVC
+┃ ┣ 📜 DenunciaViewModel.cs
+┃ ┣ 📜 ArbitroViewModel.cs
+┃ ┗ 📜 ... (outros)
+┣ 📂 Views # Views Razor
+┃ ┣ 📂 Denuncia
+┃ ┃ ┣ 📜 Index.cshtml
+┃ ┃ ┣ 📜 Create.cshtml
+┃ ┃ ┣ 📜 Edit.cshtml
+┃ ┃ ┣ 📜 Delete.cshtml
+┃ ┃ ┗ 📜 Details.cshtml
+┃ ┣ 📂 outros...
+┃ ┣ 📂 Shared
+┃ ┃ ┣ 📜 _Layout.cshtml
+┃ ┃ ┗ 📜 _ValidationScriptsPartial.cshtml
+┃ ┗ 📜 _ViewImports.cshtml
+┣ 📂 wwwroot # Arquivos estáticos
+┃ ┣ 📂 css
+┃ ┣ 📂 js
+┃ ┗ 📂 lib
+┗ 📜 Program.cs
 ```
 
-## Como rodar o projeto
+## Instalação e configuração
 
 ### Pré-requisitos
 
@@ -102,6 +165,9 @@ Edite o arquivo `appsettings.json` e ajuste a conexão com seu banco Oracle:
 }
 ```
 
+### Para o MVC (Knowball.UI)
+Edite `Knowball.UI/appsettings.json` da mesma forma.
+
 4. Restaure os pacotes
 ```bash
 dotnet restore
@@ -113,7 +179,9 @@ dotnet ef database update
 ```
 Isso criará todas as tabelas no banco Oracle
 
-6. Execute o projeto
+6. Clique com o botão direito na solução `Knowball.UI` e clique em `Definir como Projeto de Inicialização`
+
+7. Execute o projeto
 ```bash
 dotnet run --launch-profile https    #ou F5
 ```
@@ -129,7 +197,7 @@ A aplicação será iniciada em:
 
 Após iniciar a aplicação, acesse a documentação interativa da API:
 
-`https://localhost:7007/swagger`
+`https://localhost:7007/swagger` (verifique o `launchSettings.json`)
 
 ## Testando a API
 
@@ -140,6 +208,70 @@ O projeto inclui um arquivo `Knowball.http` na raiz do projeto com exemplos de r
 1. Abra o arquivo `Knowball.http` no Visual Studio ou VS Code
 2. Certifique-se de que o projeto está rodando
 3. Clique em "Send Request" acima de cada requisição para testá-la
+
+---
+
+## 📡 Endpoints da API
+
+### Árbitros
+- `GET /api/arbitro` - Lista todos os árbitros
+- `GET /api/arbitro/{id}` - Busca árbitro por ID
+- `POST /api/arbitro` - Cria novo árbitro
+- `PUT /api/arbitro/{id}` - Atualiza árbitro
+- `DELETE /api/arbitro/{id}` - Remove árbitro
+- `GET /api/arbitro/search?page=1&pageSize=10&nome=João&status=Ativo&orderBy=nome` - Busca com filtros
+
+### Arbitragens
+- `GET /api/arbitragensapi` - Lista todas as arbitragens
+- `GET /api/arbitragensapi/{idPartida}/{idArbitro}` - Busca arbitragem específica
+- `POST /api/arbitragensapi` - Cria nova arbitragem
+- `PUT /api/arbitragensapi/{idPartida}/{idArbitro}` - Atualiza arbitragem
+- `DELETE /api/arbitragensapi/{idPartida}/{idArbitro}` - Remove arbitragem
+- `GET /api/arbitragensapi/search?idPartida=1&funcao=Principal` - Busca com filtros
+
+### Campeonatos
+- `GET /api/campeonatosapi` - Lista todos os campeonatos
+- `GET /api/campeonatosapi/{id}` - Busca campeonato por ID
+- `POST /api/campeonatosapi` - Cria novo campeonato
+- `PUT /api/campeonatosapi/{id}` - Atualiza campeonato
+- `DELETE /api/campeonatosapi/{id}` - Remove campeonato
+- `GET /api/campeonatosapi/search?categoria=Profissional&ano=2025` - Busca com filtros
+
+### Denúncias
+- `GET /api/denunciasapi` - Lista todas as denúncias
+- `GET /api/denunciasapi/{id}` - Busca denúncia por ID
+- `POST /api/denunciasapi` - Cria nova denúncia
+- `PUT /api/denunciasapi/{id}` - Atualiza denúncia
+- `DELETE /api/denunciasapi/{id}` - Remove denúncia
+- `GET /api/denunciasapi/search?status=Em Análise&dataInicio=2025-01-01` - Busca com filtros
+
+### Equipes
+- `GET /api/equipe` - Lista todas as equipes
+- `GET /api/equipe/{id}` - Busca equipe por ID
+- `POST /api/equipe` - Cria nova equipe
+- `PUT /api/equipe/{id}` - Atualiza equipe
+- `DELETE /api/equipe/{id}` - Remove equipe
+- `GET /api/equipe/search?cidade=São Paulo&estado=SP` - Busca com filtros
+
+### Participações
+- `GET /api/participacao` - Lista todas as participações
+- `GET /api/participacao/{idPartida}/{idEquipe}` - Busca participação específica
+- `POST /api/participacao` - Cria nova participação
+- `PUT /api/participacao/{idPartida}/{idEquipe}` - Atualiza participação
+- `DELETE /api/participacao/{idPartida}/{idEquipe}` - Remove participação
+- `GET /api/participacao/search?tipo=Mandante&idPartida=5` - Busca com filtros
+
+### Partidas
+- `GET /api/partidasapi` - Lista todas as partidas
+- `GET /api/partidasapi/{id}` - Busca partida por ID
+- `POST /api/partidasapi` - Cria nova partida
+- `PUT /api/partidasapi/{id}` - Atualiza partida
+- `DELETE /api/partidasapi/{id}` - Remove partida
+- `GET /api/partidasapi/search?idCampeonato=1&dataInicio=2025-01-01` - Busca com filtros
+
+> **📝 Nota:** Todos os endpoints de busca suportam paginação (`page`, `pageSize`), ordenação (`orderBy`) e incluem links HATEOAS.
+
+---
 
 ## Integrantes
 
