@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+//var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+//var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-connectionString = connectionString.Replace("${DB_USER}", dbUser ?? "");
-connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword ?? "");
+//connectionString = connectionString.Replace("${DB_USER}", dbUser ?? "");
+//connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword ?? "");
 
 builder.Services.AddDbContext<KnowballContext>(options =>
     options.UseOracle(connectionString));
