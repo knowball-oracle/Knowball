@@ -1,23 +1,22 @@
-﻿using Knowball.Application.DTOs;
-using Knowball.Application.Services;
+﻿using Fiap.Knowball.Application.DTOs;
+using Fiap.Knowball.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Knowball.Controllers
+namespace Fiap.Knowball.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ArbitroController : ControllerBase
     {
         private readonly IArbitroService _arbitroService;
+        private readonly ILogger<ArbitroController> _logger;
 
-        public ArbitroController(IArbitroService arbitroService)
+        public ArbitroController(IArbitroService arbitroService, ILogger<ArbitroController> logger)
         {
             _arbitroService = arbitroService;
+            _logger = logger;
         }
 
-        /// <summary>
-        /// Retorna todos os árbitros
-        /// </summary>
         [HttpGet]
         public ActionResult<IEnumerable<ArbitroDto>> GetAll()
         {
@@ -35,15 +34,15 @@ namespace Knowball.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// Retorna um árbitro pelo ID
-        /// </summary>
         [HttpGet("{id}")]
         public ActionResult<ArbitroDto> GetById(int id)
         {
             var arbitro = _arbitroService.ObterPorId(id);
             if (arbitro == null)
+            {
+                _logger.LogWarning("Árbitro não encontrado: IdArbitro={IdArbitro}", id);
                 return NotFound(new { message = "Árbitro não encontrado" });
+            }
 
             var response = new
             {
@@ -59,33 +58,35 @@ namespace Knowball.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// Cria um novo árbitro
-        /// </summary>
         [HttpPost]
         public ActionResult<ArbitroDto> Create([FromBody] ArbitroDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var createdArbitro = _arbitroService.CriarArbitro(dto);
-            var response = new
+            try
             {
-                data = createdArbitro,
-                links = new[]
+                var createdArbitro = _arbitroService.CriarArbitro(dto);
+                var response = new
                 {
-                    new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdArbitro.IdArbitro }), method = "GET" },
-                    new { rel = "update", href = Url.Action(nameof(Update), new { id = createdArbitro.IdArbitro }), method = "PUT" },
-                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdArbitro.IdArbitro }), method = "DELETE" },
-                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                }
-            };
-            return CreatedAtAction(nameof(GetById), new { id = createdArbitro.IdArbitro }, response);
+                    data = createdArbitro,
+                    links = new[]
+                    {
+                        new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdArbitro.IdArbitro }), method = "GET" },
+                        new { rel = "update", href = Url.Action(nameof(Update), new { id = createdArbitro.IdArbitro }), method = "PUT" },
+                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdArbitro.IdArbitro }), method = "DELETE" },
+                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                    }
+                };
+                return CreatedAtAction(nameof(GetById), new { id = createdArbitro.IdArbitro }, response);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError(ex, "Erro de validação ao criar árbitro: Nome={Nome}", dto.Nome);
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        /// <summary>
-        /// Atualiza um árbitro existente
-        /// </summary>
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] ArbitroDto dto)
         {
@@ -93,39 +94,51 @@ namespace Knowball.Controllers
                 return BadRequest(ModelState);
 
             if (dto.IdArbitro != 0 && id != dto.IdArbitro)
+            {
+                _logger.LogWarning("ID incompatível na atualização de árbitro: rota={IdRota}, body={IdBody}", id, dto.IdArbitro);
                 return BadRequest(new { message = "ID incompatível" });
+            }
 
             var arbitro = _arbitroService.ObterPorId(id);
             if (arbitro == null)
-                return NotFound(new { message = "Árbitro não encontrado" });
-
-            _arbitroService.AtualizarArbitro(id, dto);
-
-            var response = new
             {
-                message = "Árbitro atualizado com sucesso",
-                links = new[]
+                _logger.LogWarning("Árbitro não encontrado para atualização: IdArbitro={IdArbitro}", id);
+                return NotFound(new { message = "Árbitro não encontrado" });
+            }
+
+            try
+            {
+                _arbitroService.AtualizarArbitro(id, dto);
+                var response = new
                 {
-                    new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
-                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
-                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                }
-            };
-            return Ok(response);
+                    message = "Árbitro atualizado com sucesso",
+                    links = new[]
+                    {
+                        new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
+                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
+                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                    }
+                };
+                return Ok(response);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError(ex, "Erro de validação ao atualizar árbitro: IdArbitro={IdArbitro}", id);
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        /// <summary>
-        /// Remove um árbitro
-        /// </summary>
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var arbitro = _arbitroService.ObterPorId(id);
             if (arbitro == null)
+            {
+                _logger.LogWarning("Árbitro não encontrado para remoção: IdArbitro={IdArbitro}", id);
                 return NotFound(new { message = "Árbitro não encontrado" });
+            }
 
             _arbitroService.RemoverArbitro(id);
-
             var response = new
             {
                 message = "Árbitro removido com sucesso",
@@ -138,40 +151,27 @@ namespace Knowball.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// Busca árbitros com paginação, ordenação e filtros
-        /// </summary>
         [HttpGet("search")]
         public ActionResult<object> Search(
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10,
-            [FromQuery] string? orderBy = null,
-            [FromQuery] string? nome = null,
-            [FromQuery] string? status = null,
-            [FromQuery] DateTime? dataNascimentoInicio = null,
-            [FromQuery] DateTime? dataNascimentoFim = null
-        )
+            [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null, [FromQuery] string? nome = null,
+            [FromQuery] string? status = null, [FromQuery] DateTime? dataNascimentoInicio = null,
+            [FromQuery] DateTime? dataNascimentoFim = null)
         {
+            _logger.LogInformation("Busca de árbitros: Page={Page}, PageSize={PageSize}, Nome={Nome}, Status={Status}",
+                page, pageSize, nome, status);
+
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
             if (pageSize > 100) pageSize = 100;
 
             var query = _arbitroService.ListarArbitros().AsQueryable();
 
-            // Aplicar filtros
-            if (!string.IsNullOrEmpty(nome))
-                query = query.Where(a => a.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(nome)) query = query.Where(a => a.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(status)) query = query.Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            if (dataNascimentoInicio.HasValue) query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento >= dataNascimentoInicio);
+            if (dataNascimentoFim.HasValue) query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento <= dataNascimentoFim);
 
-            if (!string.IsNullOrEmpty(status))
-                query = query.Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
-
-            if (dataNascimentoInicio.HasValue)
-                query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento >= dataNascimentoInicio);
-
-            if (dataNascimentoFim.HasValue)
-                query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento <= dataNascimentoFim);
-
-            // Aplicar ordenação
             query = orderBy?.ToLower() switch
             {
                 "nome" => query.OrderBy(a => a.Nome),
@@ -184,22 +184,12 @@ namespace Knowball.Controllers
 
             var totalCount = query.Count();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-            var results = query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            var results = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
             var response = new
             {
                 data = results,
-                pagination = new
-                {
-                    currentPage = page,
-                    pageSize,
-                    totalCount,
-                    totalPages
-                },
+                pagination = new { currentPage = page, pageSize, totalCount, totalPages },
                 links = new[]
                 {
                     new { rel = "self", href = Url.Action(nameof(Search), new { page, pageSize, orderBy, nome, status, dataNascimentoInicio, dataNascimentoFim }), method = "GET" },
@@ -211,7 +201,6 @@ namespace Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
-
             return Ok(response);
         }
     }

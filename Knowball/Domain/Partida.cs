@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Knowball.Domain;
 
-namespace Knowball.Models
+namespace Fiap.Knowball.Domain
 {
     public class Partida
     {

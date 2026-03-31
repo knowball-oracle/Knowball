@@ -1,6 +1,6 @@
-﻿using Knowball.Application.DTOs;
+﻿using Fiap.Knowball.Application.DTOs;
 
-namespace Knowball.Application.Services
+namespace Fiap.Knowball.Application.Services
 {
     public interface IDenunciaService
     {

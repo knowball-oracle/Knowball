@@ -1,9 +1,9 @@
-﻿using Knowball.Application.DTOs;
-using Knowball.Application.Services;
-using Knowball.UI.ViewModels;
+﻿using Fiap.Knowball.Application.Services;
+using Fiap.Knowball.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Fiap.Knowball.UI.ViewModels;
 
-namespace Knowball.UI.Controllers
+namespace Fiap.Knowball.UI.Controllers
 {
     [Route("[controller]")]
     public class ParticipacaoController : Controller

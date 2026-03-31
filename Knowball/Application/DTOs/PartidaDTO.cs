@@ -1,4 +1,4 @@
-﻿namespace Knowball.Application.DTOs
+﻿namespace Fiap.Knowball.Application.DTOs
 {
     public class PartidaDto
     {

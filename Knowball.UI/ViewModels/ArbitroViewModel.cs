@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Knowball.UI.ViewModels
+namespace Fiap.Knowball.UI.ViewModels
 {
     public class ArbitroViewModel
     {

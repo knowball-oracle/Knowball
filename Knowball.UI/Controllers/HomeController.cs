@@ -1,7 +1,7 @@
-using Knowball.Application.Services;
+using Fiap.Knowball.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Knowball.UI.Controllers
+namespace Fiap.Knowball.UI.Controllers
 {
     public class HomeController : Controller
     {

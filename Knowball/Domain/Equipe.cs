@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Knowball.Domain
+namespace Fiap.Knowball.Domain
 {
     public class Equipe
     {

@@ -1,4 +1,6 @@
-﻿namespace Knowball.Domain.Repositories
+﻿using Fiap.Knowball.Domain;
+
+namespace Fiap.Knowball.Domain.Repositories
 {
     public interface IArbitragemRepository
     {

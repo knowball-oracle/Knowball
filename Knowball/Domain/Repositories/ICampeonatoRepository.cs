@@ -1,4 +1,5 @@
-﻿namespace Knowball.Domain.Repositories
+﻿
+namespace Fiap.Knowball.Domain.Repositories
 {
     public interface ICampeonatoRepository
     {

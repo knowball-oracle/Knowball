@@ -1,4 +1,4 @@
-﻿namespace Knowball.Application.Exceptions
+﻿namespace Fiap.Knowball.Application.Exceptions
 {
     public class BusinessException(string message) : Exception(message)
     {

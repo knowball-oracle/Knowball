@@ -1,6 +1,5 @@
-﻿using Knowball.Models;
-
-namespace Knowball.Domain.Repositories
+﻿
+namespace Fiap.Knowball.Domain.Repositories
 {
     public interface IPartidaRepository
     {

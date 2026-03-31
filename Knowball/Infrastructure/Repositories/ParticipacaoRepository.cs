@@ -1,7 +1,7 @@
-﻿using Knowball.Domain;
-using Knowball.Domain.Repositories;
+﻿using Fiap.Knowball.Domain;
+using Fiap.Knowball.Domain.Repositories;
 
-namespace Knowball.Infrastructure.Repositories
+namespace Fiap.Knowball.Infrastructure.Repositories
 {
     public class ParticipacaoRepository : IParticipacaoRepository
     {

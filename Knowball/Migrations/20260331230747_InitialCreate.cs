@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Knowball.Migrations
+namespace Fiap.Knowball.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

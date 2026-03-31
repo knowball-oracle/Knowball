@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore;
 
-namespace Knowball.Infrastructure
+namespace Fiap.Knowball.Infrastructure
 {
     public class KnowballContextFactory : IDesignTimeDbContextFactory<KnowballContext>
     {

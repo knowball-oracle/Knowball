@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Knowball.Models;
 
-namespace Knowball.Domain
+namespace Fiap.Knowball.Domain
 {
     public class Participacao
     {

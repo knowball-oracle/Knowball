@@ -1,9 +1,9 @@
-﻿using Knowball.Application.DTOs;
-using Knowball.Application.Services;
-using Knowball.UI.ViewModels;
+﻿using Fiap.Knowball.Application.Services;
+using Fiap.Knowball.Application.DTOs;
+using Fiap.Knowball.UI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Knowball.UI.Controllers
+namespace Fiap.Knowball.UI.Controllers
 {
     public class ArbitragemController : Controller
     {

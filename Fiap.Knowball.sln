@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Knowball", "Knowball\Knowball.csproj", "{0512CF8E-AE3E-47B2-A84A-35B3EFEF34A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fiap.Knowball", "Knowball\Fiap.Knowball.csproj", "{0512CF8E-AE3E-47B2-A84A-35B3EFEF34A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Knowball.UI", "Knowball.UI\Knowball.UI.csproj", "{B8DC4AFC-389B-40ED-AB61-7434B9BAA701}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fiap.Knowball.UI", "Knowball.UI\Fiap.Knowball.UI.csproj", "{B8DC4AFC-389B-40ED-AB61-7434B9BAA701}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

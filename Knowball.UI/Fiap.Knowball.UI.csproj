@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.5" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="9.23.26000" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Knowball\Knowball.csproj" />
+    <ProjectReference Include="..\Knowball\Fiap.Knowball.csproj" />
   </ItemGroup>
 
 </Project>

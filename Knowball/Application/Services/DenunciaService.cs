@@ -1,21 +1,26 @@
-﻿using Knowball.Application.DTOs;
-using Knowball.Application.Exceptions;
-using Knowball.Domain;
-using Knowball.Domain.Repositories;
+﻿using Fiap.Knowball.Application.DTOs;
+using Fiap.Knowball.Domain.Repositories;
+using Fiap.Knowball.Application.Exceptions;
+using Fiap.Knowball.Domain;
 
-namespace Knowball.Application.Services
+namespace Fiap.Knowball.Application.Services
 {
     public class DenunciaService : IDenunciaService
     {
         private readonly IDenunciaRepository _repository;
+        private readonly ILogger<DenunciaService> _logger;
 
-        public DenunciaService(IDenunciaRepository repository)
+        public DenunciaService(IDenunciaRepository repository, ILogger<DenunciaService> logger)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         public DenunciaDto CriarDenuncia(DenunciaDto dto)
         {
+            _logger.LogInformation("Criando denúncia: Protocolo={Protocolo}, PartidaId={IdPartida}, ArbitroId={IdArbitro}",
+                dto.Protocolo, dto.IdPartida, dto.IdArbitro);
+
             var denuncia = new Denuncia
             {
                 IdPartida = dto.IdPartida,
@@ -27,11 +32,25 @@ namespace Knowball.Application.Services
                 ResultadoAnalise = dto.ResultadoAnalise
             };
 
-            if (!denuncia.StatusValido()) throw new BusinessException("Status inválido");
-            if (!denuncia.ProtocoloValido()) throw new BusinessException("Protocolo inválido");
-            if (!denuncia.RelatoValido()) throw new BusinessException("Relato inválido");
+            if (!denuncia.StatusValido())
+            {
+                _logger.LogWarning("Status inválido ao criar denúncia: {Status}", dto.Status);
+                throw new BusinessException("Status inválido");
+            }
+            if (!denuncia.ProtocoloValido())
+            {
+                _logger.LogWarning("Protocolo inválido ao criar denúncia: {Protocolo}", dto.Protocolo);
+                throw new BusinessException("Protocolo inválido");
+            }
+            if (!denuncia.RelatoValido())
+            {
+                _logger.LogWarning("Relato inválido ao criar denúncia com Protocolo={Protocolo}", dto.Protocolo);
+                throw new BusinessException("Relato inválido");
+            }
 
             _repository.Add(denuncia);
+            _logger.LogInformation("Denúncia criada com sucesso: IdDenuncia={IdDenuncia}, Protocolo={Protocolo}",
+                denuncia.IdDenuncia, denuncia.Protocolo);
 
             return new DenunciaDto
             {
@@ -48,6 +67,7 @@ namespace Knowball.Application.Services
 
         public IEnumerable<DenunciaDto> ListarDenuncias()
         {
+            _logger.LogInformation("Listando todas as denúncias");
             var denuncias = _repository.GetAll();
             return denuncias.Select(d => new DenunciaDto
             {
@@ -64,11 +84,18 @@ namespace Knowball.Application.Services
 
         public DenunciaDto ObterPorId(int id)
         {
+            _logger.LogInformation("Buscando denúncia: IdDenuncia={IdDenuncia}", id);
+
             var d = _repository.GetById(id);
-            if (d == null) return null;
+            if (d == null)
+            {
+                _logger.LogWarning("Denúncia não encontrada: IdDenuncia={IdDenuncia}", id);
+                return null;
+            }
 
             return new DenunciaDto
             {
+                IdDenuncia = d.IdDenuncia,
                 IdPartida = d.IdPartida,
                 IdArbitro = d.IdArbitro,
                 Protocolo = d.Protocolo,
@@ -81,8 +108,14 @@ namespace Knowball.Application.Services
 
         public void AtualizarDenuncia(int id, DenunciaDto dto)
         {
+            _logger.LogInformation("Atualizando denúncia: IdDenuncia={IdDenuncia}", id);
+
             var d = _repository.GetById(id);
-            if (d == null) throw new BusinessException("Denúncia não encontrada");
+            if (d == null)
+            {
+                _logger.LogWarning("Denúncia não encontrada para atualização: IdDenuncia={IdDenuncia}", id);
+                throw new BusinessException("Denúncia não encontrada");
+            }
 
             d.IdPartida = dto.IdPartida;
             d.IdArbitro = dto.IdArbitro;
@@ -92,16 +125,31 @@ namespace Knowball.Application.Services
             d.Status = dto.Status;
             d.ResultadoAnalise = dto.ResultadoAnalise;
 
-            if (!d.StatusValido()) throw new BusinessException("Status inválido");
-            if (!d.ProtocoloValido()) throw new BusinessException("Protocolo inválido");
-            if (!d.RelatoValido()) throw new BusinessException("Relato inválido");
+            if (!d.StatusValido())
+            {
+                _logger.LogWarning("Status inválido ao atualizar denúncia IdDenuncia={IdDenuncia}: {Status}", id, dto.Status);
+                throw new BusinessException("Status inválido");
+            }
+            if (!d.ProtocoloValido())
+            {
+                _logger.LogWarning("Protocolo inválido ao atualizar denúncia IdDenuncia={IdDenuncia}: {Protocolo}", id, dto.Protocolo);
+                throw new BusinessException("Protocolo inválido");
+            }
+            if (!d.RelatoValido())
+            {
+                _logger.LogWarning("Relato inválido ao atualizar denúncia IdDenuncia={IdDenuncia}", id);
+                throw new BusinessException("Relato inválido");
+            }
 
             _repository.Update(d);
+            _logger.LogInformation("Denúncia atualizada com sucesso: IdDenuncia={IdDenuncia}", id);
         }
 
         public void RemoverDenuncia(int id)
         {
+            _logger.LogInformation("Removendo denúncia: IdDenuncia={IdDenuncia}", id);
             _repository.Remove(id);
+            _logger.LogInformation("Denúncia removida com sucesso: IdDenuncia={IdDenuncia}", id);
         }
     }
 }

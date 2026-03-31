@@ -1,8 +1,7 @@
-﻿using Knowball.Domain;
-using Knowball.Models;
+﻿using Fiap.Knowball.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Knowball.Infrastructure
+namespace Fiap.Knowball.Infrastructure
 {
     public class KnowballContext(DbContextOptions<KnowballContext> options) : DbContext(options)
     {

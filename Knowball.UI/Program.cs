@@ -1,7 +1,7 @@
-using Knowball.Application.Services;
-using Knowball.Domain.Repositories;
-using Knowball.Infrastructure;
-using Knowball.Infrastructure.Repositories;
+using Fiap.Knowball.Application.Services;
+using Fiap.Knowball.Domain.Repositories;
+using Fiap.Knowball.Infrastructure;
+using Fiap.Knowball.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

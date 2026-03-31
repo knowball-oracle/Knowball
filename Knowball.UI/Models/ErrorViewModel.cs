@@ -1,4 +1,4 @@
-namespace Knowball.UI.Models
+namespace Fiap.Knowball.UI.Models
 {
     public class ErrorViewModel
     {
