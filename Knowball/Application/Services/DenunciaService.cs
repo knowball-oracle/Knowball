@@ -1,7 +1,7 @@
 ﻿using Fiap.Knowball.Application.DTOs;
 using Fiap.Knowball.Domain.Repositories;
 using Fiap.Knowball.Application.Exceptions;
-using Fiap.Knowball.Domain;
+using Fiap.Knowball.Models;
 
 namespace Fiap.Knowball.Application.Services
 {

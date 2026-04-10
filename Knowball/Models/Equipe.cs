@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Fiap.Knowball.Domain
+namespace Fiap.Knowball.Models
 {
     public class Equipe
     {
@@ -12,6 +12,7 @@ namespace Fiap.Knowball.Domain
 
         public bool DadosValidos() =>
             !string.IsNullOrWhiteSpace(Nome) &&
+            !string.IsNullOrWhiteSpace(Cidade) &&
             !string.IsNullOrWhiteSpace(Estado) &&
             Estado.Length == 2;
     }

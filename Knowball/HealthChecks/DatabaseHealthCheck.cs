@@ -24,7 +24,9 @@ namespace Fiap.Knowball.HealthChecks
             }
             catch (Exception ex)
             {
-                return HealthCheckResult.Unhealthy("Falha na conexão com o banco de dados Oracle.", ex);
+                return HealthCheckResult.Unhealthy(
+                    description: "Falha na conexão com o banco de dados Oracle.", 
+                    exception: ex);
             }
         }
     }

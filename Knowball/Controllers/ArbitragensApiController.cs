@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Knowball.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/arbitragens")]
     [ApiController]
     public class ArbitragensApiController : ControllerBase
     {

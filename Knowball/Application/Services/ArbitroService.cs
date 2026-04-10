@@ -1,19 +1,13 @@
 ﻿using Fiap.Knowball.Application.DTOs;
 using Fiap.Knowball.Domain.Repositories;
-using Fiap.Knowball.Domain;
+using Fiap.Knowball.Models;
 
 namespace Fiap.Knowball.Application.Services
 {
-    public class ArbitroService : IArbitroService
+    public class ArbitroService(IArbitroRepository arbitroRepository, ILogger<ArbitroService> logger) : IArbitroService
     {
-        private readonly IArbitroRepository _arbitroRepository;
-        private readonly ILogger<ArbitroService> _logger;
-
-        public ArbitroService(IArbitroRepository arbitroRepository, ILogger<ArbitroService> logger)
-        {
-            _arbitroRepository = arbitroRepository;
-            _logger = logger;
-        }
+        private readonly IArbitroRepository _arbitroRepository = arbitroRepository;
+        private readonly ILogger<ArbitroService> _logger = logger;
 
         public ArbitroDto CriarArbitro(ArbitroDto dto)
         {

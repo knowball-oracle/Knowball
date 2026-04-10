@@ -1,4 +1,6 @@
 ﻿
+using Fiap.Knowball.Models;
+
 namespace Fiap.Knowball.Domain.Repositories
 {
     public interface IDenunciaRepository

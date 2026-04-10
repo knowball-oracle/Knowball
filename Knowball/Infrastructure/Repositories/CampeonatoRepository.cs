@@ -1,5 +1,5 @@
-﻿using Fiap.Knowball.Domain;
-using Fiap.Knowball.Domain.Repositories;
+﻿using Fiap.Knowball.Domain.Repositories;
+using Fiap.Knowball.Models;
 
 namespace Fiap.Knowball.Infrastructure.Repositories
 {

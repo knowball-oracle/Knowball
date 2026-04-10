@@ -1,4 +1,4 @@
-﻿using Fiap.Knowball.Domain;
+﻿using Fiap.Knowball.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fiap.Knowball.Infrastructure

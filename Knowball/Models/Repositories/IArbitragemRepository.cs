@@ -1,4 +1,4 @@
-﻿using Fiap.Knowball.Domain;
+﻿using Fiap.Knowball.Models;
 
 namespace Fiap.Knowball.Domain.Repositories
 {

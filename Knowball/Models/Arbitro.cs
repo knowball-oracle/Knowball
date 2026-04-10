@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Fiap.Knowball.Domain
+namespace Fiap.Knowball.Models
 {
     public class Arbitro
     {

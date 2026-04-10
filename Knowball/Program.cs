@@ -14,18 +14,22 @@ using Fiap.Knowball.Infrastructure.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
-//var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-//var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
+var dbUser = Environment.GetEnvironmentVariable("DB_USERNAME");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-//connectionString = connectionString.Replace("${DB_USER}", dbUser ?? "");
-//connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword ?? "");
+connectionString = connectionString
+    .Replace("${DB_USERNAME}", dbUser ?? "")
+    .Replace("${DB_PASSWORD}", dbPassword ?? "");
 
 var serviceName = "Fiap.Knowball.API";
 var serviceVersion = "1.0.0";
 
-builder.Services.AddDbContext<KnowballContext>(options =>
-    options.UseOracle(connectionString));
+if (!builder.Environment.IsEnvironment("Test"))
+{
+    builder.Services.AddDbContext<KnowballContext>(options =>
+        options.UseOracle(connectionString));
+}
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -51,8 +55,7 @@ builder.Services.AddScoped<IArbitragemService, ArbitragemService>();
 // Health Checks
 builder.Services.AddHealthChecks()
     .AddCheck<ApiHealthCheck>("api_health", tags: new[] { "api" })
-    .AddCheck<DatabaseHealthCheck>("database_health", tags: new[] { "db", "oracle" }
-);
+    .AddCheck<DatabaseHealthCheck>("database_health", tags: new[] { "db", "oracle" });
 
 // Serilog
 Log.Logger = new LoggerConfiguration()
@@ -64,15 +67,15 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.WithThreadId()
     .WriteTo.Console(outputTemplate:
         "[{Timestamp:HH:mm:ss} {Level:u3}] [{SourceContext}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-    .WriteTo.File("logs/knowball-.log",
-        rollingInterval: RollingInterval.Day,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{SourceContext}] " +
-                        "RequestId={RequestId} {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File("Logs/knowball-.txt",
+    rollingInterval: RollingInterval.Day,
+    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{SourceContext}] " +
+                    "RequestId={RequestId} {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
-// Tracing
+// OpenTelemetry
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource
         .AddService(serviceName: serviceName, serviceVersion: serviceVersion))
@@ -96,7 +99,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Knowball API V1");
+        c.RoutePrefix = string.Empty;
+    });
 }
 
 app.UseHttpsRedirection();
@@ -146,3 +153,5 @@ app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.Health
 });
 
 app.Run();
+
+public partial class Program { }
