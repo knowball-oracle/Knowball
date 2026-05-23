@@ -1,10 +1,11 @@
 ﻿using Fiap.Knowball.Application.DTOs;
-using Fiap.Knowball.Application.Exceptions;
 using Fiap.Knowball.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Knowball.Controllers
 {
+    [Authorize]
     [Route("api/partidas")]
     [ApiController]
     public class PartidasApiController : ControllerBase
@@ -35,7 +36,7 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public ActionResult<PartidaDto> GetById(int id)
         {
             var partida = _partidaService.ObterPorId(id);
@@ -59,37 +60,32 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<PartidaDto> Create([FromBody] PartidaDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
+            var createdPartida = _partidaService.CriarPartida(dto);
+
+            var response = new
             {
-                var createdPartida = _partidaService.CriarPartida(dto);
-                var response = new
+                data = createdPartida,
+                links = new[]
                 {
-                    data = createdPartida,
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdPartida.IdPartida }), method = "GET" },
-                        new { rel = "update", href = Url.Action(nameof(Update), new { id = createdPartida.IdPartida }), method = "PUT" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdPartida.IdPartida }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return CreatedAtAction(nameof(GetById), new { id = createdPartida.IdPartida }, response);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao criar partida: CampeonatoId={IdCampeonato}, Data={DataPartida}",
-                    dto.IdCampeonato, dto.DataPartida);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdPartida.IdPartida }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { id = createdPartida.IdPartida }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdPartida.IdPartida }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = createdPartida.IdPartida }, response);
         }
 
-        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id:int}")]
         public IActionResult Update(int id, [FromBody] PartidaDto dto)
         {
             if (!ModelState.IsValid)
@@ -108,29 +104,24 @@ namespace Fiap.Knowball.Controllers
                 return NotFound(new { message = "Partida não encontrada" });
             }
 
-            try
+            _partidaService.AtualizarPartida(id, dto);
+
+            var response = new
             {
-                _partidaService.AtualizarPartida(id, dto);
-                var response = new
+                message = "Partida atualizada com sucesso",
+                links = new[]
                 {
-                    message = "Partida atualizada com sucesso",
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return Ok(response);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao atualizar partida: IdPartida={IdPartida}", id);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return Ok(response);
         }
 
-        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
             var partida = _partidaService.ObterPorId(id);
@@ -141,6 +132,7 @@ namespace Fiap.Knowball.Controllers
             }
 
             _partidaService.RemoverPartida(id);
+
             var response = new
             {
                 message = "Partida removida com sucesso",
@@ -150,14 +142,18 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
 
         [HttpGet("search")]
         public ActionResult<object> Search(
-            [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
-            [FromQuery] string? orderBy = null, [FromQuery] int? idCampeonato = null,
-            [FromQuery] string? local = null, [FromQuery] DateTime? dataInicio = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null,
+            [FromQuery] int? idCampeonato = null,
+            [FromQuery] string? local = null,
+            [FromQuery] DateTime? dataInicio = null,
             [FromQuery] DateTime? dataFim = null)
         {
             _logger.LogInformation("Busca de partidas: Page={Page}, PageSize={PageSize}, CampeonatoId={IdCampeonato}, Local={Local}",
@@ -169,10 +165,14 @@ namespace Fiap.Knowball.Controllers
 
             var query = _partidaService.ListarPartidas().AsQueryable();
 
-            if (idCampeonato.HasValue) query = query.Where(p => p.IdCampeonato == idCampeonato.Value);
-            if (!string.IsNullOrEmpty(local)) query = query.Where(p => p.Local != null && p.Local.Contains(local, StringComparison.OrdinalIgnoreCase));
-            if (dataInicio.HasValue) query = query.Where(p => p.DataPartida >= dataInicio.Value);
-            if (dataFim.HasValue) query = query.Where(p => p.DataPartida <= dataFim.Value);
+            if (idCampeonato.HasValue)
+                query = query.Where(p => p.IdCampeonato == idCampeonato.Value);
+            if (!string.IsNullOrEmpty(local))
+                query = query.Where(p => p.Local != null && p.Local.Contains(local, StringComparison.OrdinalIgnoreCase));
+            if (dataInicio.HasValue)
+                query = query.Where(p => p.DataPartida >= dataInicio.Value);
+            if (dataFim.HasValue)
+                query = query.Where(p => p.DataPartida <= dataFim.Value);
 
             query = orderBy?.ToLower() switch
             {
@@ -203,6 +203,7 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
     }

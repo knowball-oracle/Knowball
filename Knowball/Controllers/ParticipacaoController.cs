@@ -1,10 +1,12 @@
 ﻿using Fiap.Knowball.Application.DTOs;
 using Fiap.Knowball.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Knowball.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/participacao")]
     [ApiController]
     public class ParticipacaoController : ControllerBase
     {
@@ -27,13 +29,14 @@ namespace Fiap.Knowball.Controllers
                 links = new[]
                 {
                     new { rel = "self", href = Url.Action(nameof(GetAll)), method = "GET" },
-                    new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
+                    new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" },
+                    new { rel = "search", href = Url.Action(nameof(Search)), method = "GET" }
                 }
             };
             return Ok(response);
         }
 
-        [HttpGet("{idPartida}/{idEquipe}")]
+        [HttpGet("{idPartida:int}/{idEquipe:int}")]
         public ActionResult<ParticipacaoDto> GetByIds(int idPartida, int idEquipe)
         {
             var participacao = _participacaoService.ObterPorIds(idPartida, idEquipe);
@@ -57,37 +60,32 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<ParticipacaoDto> Create([FromBody] ParticipacaoDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
+            var createdParticipacao = _participacaoService.CriarParticipacao(dto);
+
+            var response = new
             {
-                var created = _participacaoService.CriarParticipacao(dto);
-                var response = new
+                data = createdParticipacao,
+                links = new[]
                 {
-                    data = created,
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida = created.IdPartida, idEquipe = created.IdEquipe }), method = "GET" },
-                        new { rel = "update", href = Url.Action(nameof(Update), new { idPartida = created.IdPartida, idEquipe = created.IdEquipe }), method = "PUT" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida = created.IdPartida, idEquipe = created.IdEquipe }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return CreatedAtAction(nameof(GetByIds), new { idPartida = created.IdPartida, idEquipe = created.IdEquipe }, response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao criar participação: PartidaId={IdPartida}, EquipeId={IdEquipe}, Tipo={Tipo}",
-                    dto.IdPartida, dto.IdEquipe, dto.Tipo);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida = createdParticipacao.IdPartida, idEquipe = createdParticipacao.IdEquipe }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { idPartida = createdParticipacao.IdPartida, idEquipe = createdParticipacao.IdEquipe }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida = createdParticipacao.IdPartida, idEquipe = createdParticipacao.IdEquipe }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return CreatedAtAction(nameof(GetByIds), new { idPartida = createdParticipacao.IdPartida, idEquipe = createdParticipacao.IdEquipe }, response);
         }
 
-        [HttpPut("{idPartida}/{idEquipe}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{idPartida:int}/{idEquipe:int}")]
         public IActionResult Update(int idPartida, int idEquipe, [FromBody] ParticipacaoDto dto)
         {
             if (!ModelState.IsValid)
@@ -107,29 +105,24 @@ namespace Fiap.Knowball.Controllers
                 return NotFound(new { message = "Participação não encontrada" });
             }
 
-            try
+            _participacaoService.AtualizarParticipacao(idPartida, idEquipe, dto);
+
+            var response = new
             {
-                _participacaoService.AtualizarParticipacao(idPartida, idEquipe, dto);
-                var response = new
+                message = "Participação atualizada com sucesso",
+                links = new[]
                 {
-                    message = "Participação atualizada com sucesso",
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida, idEquipe }), method = "GET" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida, idEquipe }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return Ok(response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao atualizar participação: PartidaId={IdPartida}, EquipeId={IdEquipe}", idPartida, idEquipe);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida, idEquipe }), method = "GET" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida, idEquipe }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return Ok(response);
         }
 
-        [HttpDelete("{idPartida}/{idEquipe}")]
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{idPartida:int}/{idEquipe:int}")]
         public IActionResult Delete(int idPartida, int idEquipe)
         {
             var participacao = _participacaoService.ObterPorIds(idPartida, idEquipe);
@@ -140,6 +133,7 @@ namespace Fiap.Knowball.Controllers
             }
 
             _participacaoService.RemoverParticipacao(idPartida, idEquipe);
+
             var response = new
             {
                 message = "Participação removida com sucesso",
@@ -149,6 +143,66 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
+            return Ok(response);
+        }
+
+        [HttpGet("search")]
+        public ActionResult<object> Search(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null,
+            [FromQuery] int? idPartida = null,
+            [FromQuery] int? idEquipe = null,
+            [FromQuery] string? tipo = null)
+        {
+            _logger.LogInformation("Busca de participações: Page={Page}, PageSize={PageSize}, IdPartida={IdPartida}, IdEquipe={IdEquipe}, Tipo={Tipo}",
+                page, pageSize, idPartida, idEquipe, tipo);
+
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
+
+            var query = _participacaoService.ListarParticipacoes().AsQueryable();
+
+            if (idPartida.HasValue)
+                query = query.Where(p => p.IdPartida == idPartida.Value);
+            if (idEquipe.HasValue)
+                query = query.Where(p => p.IdEquipe == idEquipe.Value);
+            if (!string.IsNullOrEmpty(tipo))
+                query = query.Where(p => p.Tipo.Contains(tipo, StringComparison.OrdinalIgnoreCase));
+
+            query = orderBy?.ToLower() switch
+            {
+                "tipo" => query.OrderBy(p => p.Tipo),
+                "tipo_desc" => query.OrderByDescending(p => p.Tipo),
+                "idpartida" => query.OrderBy(p => p.IdPartida),
+                "idpartida_desc" => query.OrderByDescending(p => p.IdPartida),
+                "idequipe" => query.OrderBy(p => p.IdEquipe),
+                "idequipe_desc" => query.OrderByDescending(p => p.IdEquipe),
+                _ => query.OrderBy(p => p.IdPartida).ThenBy(p => p.IdEquipe)
+            };
+
+            var totalCount = query.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            var results = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var response = new
+            {
+                data = results,
+                pagination = new { currentPage = page, pageSize, totalCount, totalPages },
+                links = new[]
+                {
+                    new { rel = "self", href = Url.Action(nameof(Search), new { page, pageSize, orderBy, idPartida, idEquipe, tipo }), method = "GET" },
+                    new { rel = "first", href = Url.Action(nameof(Search), new { page = 1, pageSize, orderBy, idPartida, idEquipe, tipo }), method = "GET" },
+                    new { rel = "last", href = Url.Action(nameof(Search), new { page = totalPages, pageSize, orderBy, idPartida, idEquipe, tipo }), method = "GET" },
+                    new { rel = "next", href = page < totalPages ? Url.Action(nameof(Search), new { page = page + 1, pageSize, orderBy, idPartida, idEquipe, tipo }) : null, method = "GET" },
+                    new { rel = "previous", href = page > 1 ? Url.Action(nameof(Search), new { page = page - 1, pageSize, orderBy, idPartida, idEquipe, tipo }) : null, method = "GET" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" },
+                    new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
+                }
+            };
+
             return Ok(response);
         }
     }

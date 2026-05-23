@@ -1,10 +1,11 @@
 ﻿using Fiap.Knowball.Application.DTOs;
-using Fiap.Knowball.Application.Exceptions;
 using Fiap.Knowball.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Knowball.Controllers
 {
+    [Authorize]
     [Route("api/campeonatos")]
     [ApiController]
     public class CampeonatosApiController : ControllerBase
@@ -35,7 +36,7 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public ActionResult<CampeonatoDto> GetById(int id)
         {
             var campeonato = _campeonatoService.ObterPorId(id);
@@ -59,37 +60,32 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<CampeonatoDto> Create([FromBody] CampeonatoDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
+            var createdCampeonato = _campeonatoService.CriarCampeonato(dto);
+
+            var response = new
             {
-                var createdCampeonato = _campeonatoService.CriarCampeonato(dto);
-                var response = new
+                data = createdCampeonato,
+                links = new[]
                 {
-                    data = createdCampeonato,
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdCampeonato.IdCampeonato }), method = "GET" },
-                        new { rel = "update", href = Url.Action(nameof(Update), new { id = createdCampeonato.IdCampeonato }), method = "PUT" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdCampeonato.IdCampeonato }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return CreatedAtAction(nameof(GetById), new { id = createdCampeonato.IdCampeonato }, response);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao criar campeonato: Nome={Nome}, Ano={Ano}, Categoria={Categoria}",
-                    dto.Nome, dto.Ano, dto.Categoria);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdCampeonato.IdCampeonato }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { id = createdCampeonato.IdCampeonato }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdCampeonato.IdCampeonato }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = createdCampeonato.IdCampeonato }, response);
         }
 
-        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id:int}")]
         public IActionResult Update(int id, [FromBody] CampeonatoDto dto)
         {
             if (!ModelState.IsValid)
@@ -108,29 +104,24 @@ namespace Fiap.Knowball.Controllers
                 return NotFound(new { message = "Campeonato não encontrado" });
             }
 
-            try
+            _campeonatoService.AtualizarCampeonato(id, dto);
+
+            var response = new
             {
-                _campeonatoService.AtualizarCampeonato(id, dto);
-                var response = new
+                message = "Campeonato atualizado com sucesso",
+                links = new[]
                 {
-                    message = "Campeonato atualizado com sucesso",
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return Ok(response);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao atualizar campeonato: IdCampeonato={IdCampeonato}", id);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return Ok(response);
         }
 
-        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
             var campeonato = _campeonatoService.ObterPorId(id);
@@ -141,6 +132,7 @@ namespace Fiap.Knowball.Controllers
             }
 
             _campeonatoService.RemoverCampeonato(id);
+
             var response = new
             {
                 message = "Campeonato removido com sucesso",
@@ -150,15 +142,20 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
 
         [HttpGet("search")]
         public ActionResult<object> Search(
-            [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
-            [FromQuery] string? orderBy = null, [FromQuery] string? nome = null,
-            [FromQuery] string? categoria = null, [FromQuery] int? ano = null,
-            [FromQuery] int? anoInicio = null, [FromQuery] int? anoFim = null)
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null,
+            [FromQuery] string? nome = null,
+            [FromQuery] string? categoria = null,
+            [FromQuery] int? ano = null,
+            [FromQuery] int? anoInicio = null,
+            [FromQuery] int? anoFim = null)
         {
             _logger.LogInformation("Busca de campeonatos: Page={Page}, PageSize={PageSize}, Nome={Nome}, Categoria={Categoria}, Ano={Ano}",
                 page, pageSize, nome, categoria, ano);
@@ -169,11 +166,16 @@ namespace Fiap.Knowball.Controllers
 
             var query = _campeonatoService.ListarCampeonatos().AsQueryable();
 
-            if (!string.IsNullOrEmpty(nome)) query = query.Where(c => c.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
-            if (!string.IsNullOrEmpty(categoria)) query = query.Where(c => c.Categoria.Contains(categoria, StringComparison.OrdinalIgnoreCase));
-            if (ano.HasValue) query = query.Where(c => c.Ano == ano.Value);
-            if (anoInicio.HasValue) query = query.Where(c => c.Ano >= anoInicio.Value);
-            if (anoFim.HasValue) query = query.Where(c => c.Ano <= anoFim.Value);
+            if (!string.IsNullOrEmpty(nome))
+                query = query.Where(c => c.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(categoria))
+                query = query.Where(c => c.Categoria.Contains(categoria, StringComparison.OrdinalIgnoreCase));
+            if (ano.HasValue)
+                query = query.Where(c => c.Ano == ano.Value);
+            if (anoInicio.HasValue)
+                query = query.Where(c => c.Ano >= anoInicio.Value);
+            if (anoFim.HasValue)
+                query = query.Where(c => c.Ano <= anoFim.Value);
 
             query = orderBy?.ToLower() switch
             {
@@ -205,6 +207,7 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
     }

@@ -1,10 +1,12 @@
 ﻿using Fiap.Knowball.Application.DTOs;
 using Fiap.Knowball.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Knowball.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/equipes")]
     [ApiController]
     public class EquipeController : ControllerBase
     {
@@ -58,35 +60,31 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<EquipeDto> Create([FromBody] EquipeDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
+            var createdEquipe = _equipeService.CriarEquipe(dto);
+
+            var response = new
             {
-                var createdEquipe = _equipeService.CriarEquipe(dto);
-                var response = new
+                data = createdEquipe,
+                links = new[]
                 {
-                    data = createdEquipe,
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdEquipe.IdEquipe }), method = "GET" },
-                        new { rel = "update", href = Url.Action(nameof(Update), new { id = createdEquipe.IdEquipe }), method = "PUT" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdEquipe.IdEquipe }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return CreatedAtAction(nameof(GetById), new { id = createdEquipe.IdEquipe }, response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao criar equipe: Nome={Nome}, Estado={Estado}", dto.Nome, dto.Estado);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdEquipe.IdEquipe }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { id = createdEquipe.IdEquipe }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdEquipe.IdEquipe }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = createdEquipe.IdEquipe }, response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] EquipeDto dto)
         {
@@ -106,28 +104,23 @@ namespace Fiap.Knowball.Controllers
                 return NotFound(new { message = "Equipe não encontrada" });
             }
 
-            try
+            _equipeService.AtualizarEquipe(id, dto);
+
+            var response = new
             {
-                _equipeService.AtualizarEquipe(id, dto);
-                var response = new
+                message = "Equipe atualizada com sucesso",
+                links = new[]
                 {
-                    message = "Equipe atualizada com sucesso",
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return Ok(response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao atualizar equipe: IdEquipe={IdEquipe}", id);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -139,6 +132,7 @@ namespace Fiap.Knowball.Controllers
             }
 
             _equipeService.RemoverEquipe(id);
+
             var response = new
             {
                 message = "Equipe removida com sucesso",
@@ -148,17 +142,21 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
 
         [HttpGet("search")]
         public ActionResult<object> Search(
-            [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
-            [FromQuery] string? orderBy = null, [FromQuery] string? nome = null,
-            [FromQuery] string? cidade = null, [FromQuery] string? estado = null)
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null,
+            [FromQuery] string? nome = null,
+            [FromQuery] string? cidade = null,
+            [FromQuery] string? estado = null)
         {
-            _logger.LogInformation("Busca de equipes: Page={Page}, PageSize={PageSize}, Nome={Nome}, Estado={Estado}",
-                page, pageSize, nome, estado);
+            _logger.LogInformation("Busca de equipes: Page={Page}, PageSize={PageSize}, Nome={Nome}, Cidade={Cidade}, Estado={Estado}",
+                page, pageSize, nome, cidade, estado);
 
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
@@ -166,9 +164,12 @@ namespace Fiap.Knowball.Controllers
 
             var query = _equipeService.ListarEquipes().AsQueryable();
 
-            if (!string.IsNullOrEmpty(nome)) query = query.Where(e => e.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
-            if (!string.IsNullOrEmpty(cidade)) query = query.Where(e => e.Cidade != null && e.Cidade.Contains(cidade, StringComparison.OrdinalIgnoreCase));
-            if (!string.IsNullOrEmpty(estado)) query = query.Where(e => e.Estado != null && e.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(nome))
+                query = query.Where(e => e.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(cidade))
+                query = query.Where(e => e.Cidade.Contains(cidade, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(estado))
+                query = query.Where(e => e.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase));
 
             query = orderBy?.ToLower() switch
             {
@@ -200,6 +201,7 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
     }

@@ -1,4 +1,6 @@
 ﻿using Fiap.Knowball.Infrastructure;
+using Fiap.Knowball.Tests.Integration.Auth;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -19,8 +21,22 @@ public class KnowballWebAppFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
+            var dbContextDescriptor = services.SingleOrDefault(d =>
+                d.ServiceType == typeof(DbContextOptions<KnowballContext>));
+
+            if (dbContextDescriptor != null)
+                services.Remove(dbContextDescriptor);
+
             services.AddDbContext<KnowballContext>(options =>
                 options.UseInMemoryDatabase(DbName, _dbRoot));
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = TestAuthHandler.AuthenticationScheme;
+                options.DefaultChallengeScheme = TestAuthHandler.AuthenticationScheme;
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                TestAuthHandler.AuthenticationScheme, _ => { });
         });
     }
 
@@ -30,10 +46,25 @@ public class KnowballWebAppFactory : WebApplicationFactory<Program>
 
         using var scope = host.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<KnowballContext>();
+
+        db.Database.EnsureDeleted();
         db.Database.EnsureCreated();
         SeedTestData(db);
 
         return host;
+    }
+
+    public HttpClient CreateAnonymousClient()
+    {
+        return CreateClient();
+    }
+
+    public HttpClient CreateAuthenticatedClient(string role = "User")
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Auth", "true");
+        client.DefaultRequestHeaders.Add("X-Test-Role", role);
+        return client;
     }
 
     private static void SeedTestData(KnowballContext db)
@@ -42,26 +73,32 @@ public class KnowballWebAppFactory : WebApplicationFactory<Program>
             new() { IdCampeonato = 1, Nome = "Copa Sub-17", Categoria = "Sub-17", Ano = 2025 },
             new() { IdCampeonato = 2, Nome = "Copa Sub-20", Categoria = "Sub-20", Ano = 2024 }
         );
+
         db.Arbitros.AddRange(
             new() { IdArbitro = 1, Nome = "João Silva", Status = "Ativo" },
             new() { IdArbitro = 2, Nome = "Maria Souza", Status = "Inativo" }
         );
+
         db.Equipes.AddRange(
             new() { IdEquipe = 1, Nome = "Flamengo", Cidade = "Rio de Janeiro", Estado = "RJ" },
             new() { IdEquipe = 2, Nome = "Corinthians", Cidade = "São Paulo", Estado = "SP" }
         );
+
         db.Partidas.AddRange(
             new() { IdPartida = 1, IdCampeonato = 1, DataPartida = DateTime.Now.AddDays(5), Local = "Maracanã", PlacarMandante = 0, PlacarVisitante = 0 },
             new() { IdPartida = 2, IdCampeonato = 1, DataPartida = DateTime.Now.AddDays(10), Local = "Morumbi", PlacarMandante = 0, PlacarVisitante = 0 }
         );
+
         db.Participacoes.AddRange(
             new() { IdPartida = 1, IdEquipe = 1, Tipo = "Mandante" },
             new() { IdPartida = 1, IdEquipe = 2, Tipo = "Visitante" }
         );
+
         db.Arbitragens.AddRange(
             new() { IdPartida = 1, IdArbitro = 1, Funcao = "Principal" },
             new() { IdPartida = 2, IdArbitro = 2, Funcao = "Assistente 1" }
         );
+
         db.Denuncias.AddRange(
             new()
             {
@@ -84,6 +121,7 @@ public class KnowballWebAppFactory : WebApplicationFactory<Program>
                 DataDenuncia = DateTime.Now
             }
         );
+
         db.SaveChanges();
     }
 }

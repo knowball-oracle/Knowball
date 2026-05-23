@@ -1,9 +1,11 @@
 ﻿using Fiap.Knowball.Application.DTOs;
 using Fiap.Knowball.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Knowball.Controllers
 {
+    [Authorize]
     [Route("api/arbitragens")]
     [ApiController]
     public class ArbitragensApiController : ControllerBase
@@ -34,7 +36,7 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{idPartida}/{idArbitro}")]
+        [HttpGet("{idPartida:int}/{idArbitro:int}")]
         public ActionResult<ArbitragemDto> GetByIds(int idPartida, int idArbitro)
         {
             var arbitragem = _arbitragemService.ObterPorIds(idPartida, idArbitro);
@@ -58,36 +60,32 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<ArbitragemDto> Create([FromBody] ArbitragemDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
+            var createdArbitragem = _arbitragemService.CriarArbitragem(dto);
+
+            var response = new
             {
-                var createdArbitragem = _arbitragemService.CriarArbitragem(dto);
-                var response = new
+                data = createdArbitragem,
+                links = new[]
                 {
-                    data = createdArbitragem,
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "GET" },
-                        new { rel = "update", href = Url.Action(nameof(Update), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "PUT" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return CreatedAtAction(nameof(GetByIds), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }, response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao criar arbitragem: PartidaId={IdPartida}, ArbitroId={IdArbitro}", dto.IdPartida, dto.IdArbitro);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return CreatedAtAction(nameof(GetByIds), new { idPartida = createdArbitragem.IdPartida, idArbitro = createdArbitragem.IdArbitro }, response);
         }
 
-        [HttpPut("{idPartida}/{idArbitro}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{idPartida:int}/{idArbitro:int}")]
         public IActionResult Update(int idPartida, int idArbitro, [FromBody] ArbitragemDto dto)
         {
             if (!ModelState.IsValid)
@@ -107,29 +105,24 @@ namespace Fiap.Knowball.Controllers
                 return NotFound(new { message = "Arbitragem não encontrada" });
             }
 
-            try
+            _arbitragemService.AtualizarArbitragem(idPartida, idArbitro, dto);
+
+            var response = new
             {
-                _arbitragemService.AtualizarArbitragem(idPartida, idArbitro, dto);
-                var response = new
+                message = "Arbitragem atualizada com sucesso",
+                links = new[]
                 {
-                    message = "Arbitragem atualizada com sucesso",
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida, idArbitro }), method = "GET" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida, idArbitro }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return Ok(response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao atualizar arbitragem: PartidaId={IdPartida}, ArbitroId={IdArbitro}", idPartida, idArbitro);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetByIds), new { idPartida, idArbitro }), method = "GET" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { idPartida, idArbitro }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return Ok(response);
         }
 
-        [HttpDelete("{idPartida}/{idArbitro}")]
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{idPartida:int}/{idArbitro:int}")]
         public IActionResult Delete(int idPartida, int idArbitro)
         {
             var arbitragem = _arbitragemService.ObterPorIds(idPartida, idArbitro);
@@ -140,6 +133,7 @@ namespace Fiap.Knowball.Controllers
             }
 
             _arbitragemService.RemoverArbitragem(idPartida, idArbitro);
+
             var response = new
             {
                 message = "Arbitragem removida com sucesso",
@@ -149,14 +143,18 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
 
         [HttpGet("search")]
         public ActionResult<object> Search(
-            [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
-            [FromQuery] string? orderBy = null, [FromQuery] int? idPartida = null,
-            [FromQuery] int? idArbitro = null, [FromQuery] string? funcao = null)
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null,
+            [FromQuery] int? idPartida = null,
+            [FromQuery] int? idArbitro = null,
+            [FromQuery] string? funcao = null)
         {
             _logger.LogInformation("Busca de arbitragens: Page={Page}, PageSize={PageSize}, IdPartida={IdPartida}, IdArbitro={IdArbitro}, Funcao={Funcao}",
                 page, pageSize, idPartida, idArbitro, funcao);
@@ -167,9 +165,12 @@ namespace Fiap.Knowball.Controllers
 
             var query = _arbitragemService.ListarArbitragens().AsQueryable();
 
-            if (idPartida.HasValue) query = query.Where(a => a.IdPartida == idPartida.Value);
-            if (idArbitro.HasValue) query = query.Where(a => a.IdArbitro == idArbitro.Value);
-            if (!string.IsNullOrEmpty(funcao)) query = query.Where(a => a.Funcao.Contains(funcao, StringComparison.OrdinalIgnoreCase));
+            if (idPartida.HasValue)
+                query = query.Where(a => a.IdPartida == idPartida.Value);
+            if (idArbitro.HasValue)
+                query = query.Where(a => a.IdArbitro == idArbitro.Value);
+            if (!string.IsNullOrEmpty(funcao))
+                query = query.Where(a => a.Funcao.Contains(funcao, StringComparison.OrdinalIgnoreCase));
 
             query = orderBy?.ToLower() switch
             {
@@ -201,6 +202,7 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
     }

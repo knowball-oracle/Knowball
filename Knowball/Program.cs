@@ -1,15 +1,21 @@
+﻿using System.Text;
 using System.Text.Json;
+using Fiap.Knowball.Application.Services;
+using Fiap.Knowball.Configuration;
+using Fiap.Knowball.Domain.Repositories;
 using Fiap.Knowball.HealthChecks;
+using Fiap.Knowball.Infrastructure;
+using Fiap.Knowball.Infrastructure.MongoDB;
+using Fiap.Knowball.Infrastructure.Repositories;
+using Fiap.Knowball.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
-using Serilog.Events;
+using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Metrics;
-using Fiap.Knowball.Application.Services;
-using Fiap.Knowball.Domain.Repositories;
-using Fiap.Knowball.Infrastructure;
-using Fiap.Knowball.Infrastructure.Repositories;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,10 +37,35 @@ if (!builder.Environment.IsEnvironment("Test"))
         options.UseOracle(connectionString));
 }
 
-builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Informe: Bearer {seu_token}"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddScoped<ICampeonatoRepository, CampeonatoRepository>();
 builder.Services.AddScoped<IEquipeRepository, EquipeRepository>();
@@ -52,12 +83,40 @@ builder.Services.AddScoped<IArbitroService, ArbitroService>();
 builder.Services.AddScoped<IParticipacaoService, ParticipacaoService>();
 builder.Services.AddScoped<IArbitragemService, ArbitragemService>();
 
-// Health Checks
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
+
+builder.Services.AddSingleton<ILogAcessoRepository, LogAcessoRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+    };
+});
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddHealthChecks()
     .AddCheck<ApiHealthCheck>("api_health", tags: new[] { "api" })
-    .AddCheck<DatabaseHealthCheck>("database_health", tags: new[] { "db", "oracle" });
+    .AddCheck<DatabaseHealthCheck>("database_health", tags: new[] { "db", "oracle" })
+    .AddCheck<MongoDbHealthCheck>("mongodb_health", tags: new[] { "db", "mongodb" });
 
-// Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -68,14 +127,13 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(outputTemplate:
         "[{Timestamp:HH:mm:ss} {Level:u3}] [{SourceContext}] {Message:lj} {Properties:j}{NewLine}{Exception}")
     .WriteTo.File("Logs/knowball-.txt",
-    rollingInterval: RollingInterval.Day,
-    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{SourceContext}] " +
-                    "RequestId={RequestId} {Message:lj}{NewLine}{Exception}")
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{SourceContext}] " +
+                        "RequestId={RequestId} {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
-// OpenTelemetry
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource
         .AddService(serviceName: serviceName, serviceVersion: serviceVersion))
@@ -97,7 +155,6 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -105,8 +162,6 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
-
-app.UseHttpsRedirection();
 
 app.UseSerilogRequestLogging(options =>
 {
@@ -119,7 +174,13 @@ app.UseSerilogRequestLogging(options =>
                 : LogEventLevel.Information;
 });
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -140,17 +201,17 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
         });
         await context.Response.WriteAsync(result);
     }
-});
+}).AllowAnonymous();
 
 app.MapHealthChecks("/health/db", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("db")
-});
+}).AllowAnonymous();
 
 app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     Predicate = _ => true
-});
+}).AllowAnonymous();
 
 app.Run();
 

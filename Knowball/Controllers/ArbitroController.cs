@@ -1,10 +1,12 @@
 ﻿using Fiap.Knowball.Application.DTOs;
 using Fiap.Knowball.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Knowball.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/arbitros")]
     [ApiController]
     public class ArbitroController : ControllerBase
     {
@@ -58,35 +60,31 @@ namespace Fiap.Knowball.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<ArbitroDto> Create([FromBody] ArbitroDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
+            var createdArbitro = _arbitroService.CriarArbitro(dto);
+
+            var response = new
             {
-                var createdArbitro = _arbitroService.CriarArbitro(dto);
-                var response = new
+                data = createdArbitro,
+                links = new[]
                 {
-                    data = createdArbitro,
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdArbitro.IdArbitro }), method = "GET" },
-                        new { rel = "update", href = Url.Action(nameof(Update), new { id = createdArbitro.IdArbitro }), method = "PUT" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdArbitro.IdArbitro }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return CreatedAtAction(nameof(GetById), new { id = createdArbitro.IdArbitro }, response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao criar árbitro: Nome={Nome}", dto.Nome);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id = createdArbitro.IdArbitro }), method = "GET" },
+                    new { rel = "update", href = Url.Action(nameof(Update), new { id = createdArbitro.IdArbitro }), method = "PUT" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id = createdArbitro.IdArbitro }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = createdArbitro.IdArbitro }, response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] ArbitroDto dto)
         {
@@ -106,28 +104,23 @@ namespace Fiap.Knowball.Controllers
                 return NotFound(new { message = "Árbitro não encontrado" });
             }
 
-            try
+            _arbitroService.AtualizarArbitro(id, dto);
+
+            var response = new
             {
-                _arbitroService.AtualizarArbitro(id, dto);
-                var response = new
+                message = "Árbitro atualizado com sucesso",
+                links = new[]
                 {
-                    message = "Árbitro atualizado com sucesso",
-                    links = new[]
-                    {
-                        new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
-                        new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
-                        new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
-                    }
-                };
-                return Ok(response);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Erro de validação ao atualizar árbitro: IdArbitro={IdArbitro}", id);
-                return BadRequest(new { message = ex.Message });
-            }
+                    new { rel = "self", href = Url.Action(nameof(GetById), new { id }), method = "GET" },
+                    new { rel = "delete", href = Url.Action(nameof(Delete), new { id }), method = "DELETE" },
+                    new { rel = "all", href = Url.Action(nameof(GetAll)), method = "GET" }
+                }
+            };
+
+            return Ok(response);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -139,6 +132,7 @@ namespace Fiap.Knowball.Controllers
             }
 
             _arbitroService.RemoverArbitro(id);
+
             var response = new
             {
                 message = "Árbitro removido com sucesso",
@@ -148,14 +142,18 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
 
         [HttpGet("search")]
         public ActionResult<object> Search(
-            [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
-            [FromQuery] string? orderBy = null, [FromQuery] string? nome = null,
-            [FromQuery] string? status = null, [FromQuery] DateTime? dataNascimentoInicio = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? orderBy = null,
+            [FromQuery] string? nome = null,
+            [FromQuery] string? status = null,
+            [FromQuery] DateTime? dataNascimentoInicio = null,
             [FromQuery] DateTime? dataNascimentoFim = null)
         {
             _logger.LogInformation("Busca de árbitros: Page={Page}, PageSize={PageSize}, Nome={Nome}, Status={Status}",
@@ -167,10 +165,14 @@ namespace Fiap.Knowball.Controllers
 
             var query = _arbitroService.ListarArbitros().AsQueryable();
 
-            if (!string.IsNullOrEmpty(nome)) query = query.Where(a => a.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
-            if (!string.IsNullOrEmpty(status)) query = query.Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
-            if (dataNascimentoInicio.HasValue) query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento >= dataNascimentoInicio);
-            if (dataNascimentoFim.HasValue) query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento <= dataNascimentoFim);
+            if (!string.IsNullOrEmpty(nome))
+                query = query.Where(a => a.Nome.Contains(nome, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            if (dataNascimentoInicio.HasValue)
+                query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento >= dataNascimentoInicio);
+            if (dataNascimentoFim.HasValue)
+                query = query.Where(a => a.DataNascimento.HasValue && a.DataNascimento <= dataNascimentoFim);
 
             query = orderBy?.ToLower() switch
             {
@@ -201,6 +203,7 @@ namespace Fiap.Knowball.Controllers
                     new { rel = "create", href = Url.Action(nameof(Create)), method = "POST" }
                 }
             };
+
             return Ok(response);
         }
     }
