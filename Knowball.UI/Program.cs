@@ -1,20 +1,30 @@
 using Fiap.Knowball.Application.Services;
+using Fiap.Knowball.Configuration;
 using Fiap.Knowball.Domain.Repositories;
 using Fiap.Knowball.Infrastructure;
+using Fiap.Knowball.Infrastructure.MongoDB;
 using Fiap.Knowball.Infrastructure.Repositories;
+using Fiap.Knowball.Models.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
-//var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-//var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-//connectionString = connectionString.Replace("${DB_USER}", dbUser ?? "");
-//connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword ?? "");
+var dbUser = Environment.GetEnvironmentVariable("DB_USERNAME");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+connectionString = connectionString
+    .Replace("${DB_USERNAME}", dbUser ?? "")
+    .Replace("${DB_PASSWORD}", dbPassword ?? "");
 
 builder.Services.AddDbContext<KnowballContext>(options =>
     options.UseOracle(connectionString));
+
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDbSettings"));
+builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<IDenunciaLogRepository, DenunciaLogRepository>();
 
 builder.Services.AddScoped<ICampeonatoRepository, CampeonatoRepository>();
 builder.Services.AddScoped<IEquipeRepository, EquipeRepository>();
@@ -37,7 +47,6 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -46,9 +55,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapControllerRoute(
