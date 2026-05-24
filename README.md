@@ -35,6 +35,10 @@ O **Knowball** é uma solução integrada desenvolvida em **ASP .NET Core** que 
 
 ✅ **Interface web intuitiva** para gestão visual dos dados.
 
+✅ **Autenticação e autorização** com JWT Bearer Token e controle de roles.
+
+✅ **Auditoria de denúncias** com logs persistidos no MongoDB.
+
 ✅ **Monitoramento e observabilidade** com Health Checks, Serilog e OpenTelemetry.
 
 ✅ **Testes automatizados** com cobertura de camadas Unit e Integration.
@@ -51,8 +55,13 @@ O Knowball é uma aplicação Web API desenvolvida para gerenciar informações 
 - **Arbitragem**: designação de árbitros para partidas (Principal, Assistente 1, Assistente 2, Quarto Árbitro)
 - **Participação**: controle de equipes em partidas (Mandante/Visitante)
 - **Denúncias**: sistema de registro e acompanhamento de denúncias relacionadas a partidas
+- **Logs de Auditoria**: histórico de operações em denúncias persistido no MongoDB
 
-## **Novas funcionalidades implementadas - Sprint 3**
+## Arquitetura da solução
+![Imagem](https://drive.google.com/uc?export=view&id=1WS4ifG0A45tN-04RxYZoH05RZTM3cUgF)
+
+
+## **Novas funcionalidades implementadas - Sprint 3 + Sprint 4**
 
 ### 🩺 Monitoramento e Observabilidade
 
@@ -99,13 +108,68 @@ A aplicação implementa **rastreamento distribuído** com OpenTelemetry, captur
 
 ![OpenTelemetry](https://drive.google.com/uc?export=view&id=1aQPRW46TY68f7YDfCweHmcTwtaUWFwSg)
 
+### 🔐 Autenticação e Autorização com JWT
+
+A API utiliza **JWT Bearer Token** para proteger os endpoints. Endpoints de leitura exigem autenticação; endpoints de escrita (`POST`, `PUT`, `DELETE`) exigem adicionalmente a role `Admin`.
+
+#### Endpoints de autenticação
+
+| Método | Endpoint | Descrição | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Registra novo usuário | ❌ Público |
+| `POST` | `/api/auth/login` | Autentica e retorna o token JWT | ❌ Público |
+
+#### Autenticando no Swagger
+
+1. Acesse `https://localhost:7007/swagger`
+2. Clique no botão 🔒 **Authorize** (canto superior direito)
+3. No campo **Value**, insira: `Bearer eyJhbGci...` (cole seu token após "Bearer ")
+4. Clique em **Authorize** → todos os endpoints passarão a enviar o token automaticamente
+
+#### Configuração (`appsettings.json`)
+
+```json
+"JwtSettings": {
+  "SecretKey": "CHANGE_ME_USE_ENV_VAR",
+  "Issuer": "Fiap.Knowball",
+  "Audience": "Fiap.Knowball.Client",
+  "ExpirationMinutes": 60
+}
+```
+
+### 🍃 MongoDB — Auditoria de Denúncias
+
+Toda operação de criação, atualização ou remoção de denúncias gera um log de auditoria persistido no **MongoDB**, permitindo rastrear o histórico completo de cada denúncia.
+
+#### Estrutura do documento
+
+```json
+{
+  "_id": "ObjectId(...)",
+  "denunciaId": 1,
+  "acao": "Criada",
+  "detalhes": "Denúncia criada via API",
+  "timestamp": "2025-10-15T14:32:00Z"
+}
+```
+
+#### Configuração (`appsettings.json`)
+
+```json
+"MongoDbSettings": {
+  "ConnectionString": "mongodb://localhost:27017",
+  "DatabaseName": "knowball_logs",
+  "LogAcessoCollection": "logs_acesso"
+}
+```
+
 ---
+
+
 
 ### 🧪 Testes Automatizados
 
 A solução conta com **206 testes automatizados** organizados em dois projetos distintos, todos seguindo o padrão **AAA (Arrange, Act, Assert)**.
-
-> Substitua a imagem abaixo pela screenshot do resultado dos 206 testes no Visual Studio ou CLI.
 
 ![Testes](https://drive.google.com/uc?export=view&id=1F9f-OLRGRkqw51fTU9sJimvChizzWzFl)
 
@@ -189,6 +253,8 @@ O projeto segue os princípios da **Clean Architecture**, garantindo separação
 ┃ ┣ 📂 DTOs
 ┃ ┣ 📂 Exceptions
 ┃ ┗ 📂 Services
+┣ 📂 Configuration
+┃ ┗ 📜 JwtConfiguration.cs
 ┣ 📂 Controllers
 ┣ 📂 HealthChecks
 ┃ ┣ 📜 ApiHealthCheck.cs
@@ -197,10 +263,13 @@ O projeto segue os princípios da **Clean Architecture**, garantindo separação
 ┃ ┣ 📂 Repositories
 ┃ ┣ 📜 KnowballContext.cs
 ┃ ┗ 📜 KnowballContextFactory.cs
-┣ 📂 Logs                        ← gerado em runtime pelo Serilog
+┣ 📂 Logs ← gerado em runtime pelo Serilog
+┣ 📂 Middleware
+┃ ┗ 📜 GlobalExceptionMiddleware.cs
 ┣ 📂 Migrations
 ┣ 📂 Models
 ┃ ┣ 📂 Repositories
+┃ ┗ 📜 DenunciaLog.cs ← entidade MongoDB
 ┣ 📜 appsettings.json
 ┣ 📜 Knowball.http
 ┗ 📜 Program.cs
@@ -224,8 +293,12 @@ O projeto segue os princípios da **Clean Architecture**, garantindo separação
 ┃ ┣ 📂 Domain
 ┃ ┗ 📂 Services
 ┗ 📂 Integration
-  ┣ 📂 Controllers
-  ┗ 📂 Fixtures
+┣ 📂 Auth
+┃ ┗ 📜 TestAuthHandler.cs
+┣ 📂 Controllers
+┗ 📂 Fixtures
+┣ 📜 JwtTestHelper.cs
+┗ 📜 KnowballWebAppFactory.cs
 ```
 
 ---
@@ -236,8 +309,9 @@ O projeto segue os princípios da **Clean Architecture**, garantindo separação
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download)
 - [Oracle Database](https://www.oracle.com/database/)
+- [MongoDB](https://www.mongodb.com/try/download/community) (local ou Atlas)
 - [Visual Studio 2022](https://visualstudio.microsoft.com/) ou [VS Code](https://code.visualstudio.com/)
-
+  
 ### Passo a passo
 
 1. Clone o repositório
@@ -254,10 +328,12 @@ cd Knowball/Knowball
 
 No Visual Studio: botão direito no projeto → **Properties → Debug → Open debug launch profiles UI → Environment Variables**
 
-| Variável | Valor |
+| Variável | Descrição |
 |---|---|
-| `DB_USERNAME` | seu usuário Oracle |
-| `DB_PASSWORD` | sua senha Oracle |
+| `DB_USERNAME` | Usuário Oracle |
+| `DB_PASSWORD` | Senha Oracle |
+| `JwtSettings__SecretKey` | Chave secreta JWT (mín. 32 caracteres) |
+| `MongoDbSettings__ConnectionString` | String de conexão MongoDB |
 
 O `appsettings.json` já está configurado para usar essas variáveis:
 ```json
@@ -322,92 +398,101 @@ O projeto inclui um arquivo `Knowball.http` na raiz do projeto com exemplos de r
 
 ## 📡 Endpoints da API
 
+> Todos os endpoints exigem `Authorization: Bearer {token}`. Endpoints de escrita exigem role `Admin`.
+
+### 🔐 Autenticação
+
+| Método | Endpoint | Auth |
+|---|---|---|
+| `POST` | `/api/auth/register` | ❌ Público |
+| `POST` | `/api/auth/login` | ❌ Público |
+
 ### 🩺 Health Checks
 
-| Método | Endpoint | Descrição |
-|---|---|---|
-| GET | `/health` | Status geral com detalhes JSON de cada check |
-| GET | `/health/db` | Verifica conectividade com o Oracle |
-| GET | `/health/ready` | Verifica todos os checks simultaneamente |
+| Método | Endpoint |
+|---|---|
+| `GET` | `/health` |
+| `GET` | `/health/db` |
+| `GET` | `/health/ready` |
 
 ### Árbitros
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/arbitro` | Lista todos os árbitros |
-| `GET` | `/api/arbitro/{id}` | Busca árbitro por ID |
-| `POST` | `/api/arbitro` | Cria novo árbitro |
-| `PUT` | `/api/arbitro/{id}` | Atualiza árbitro |
-| `DELETE` | `/api/arbitro/{id}` | Remove árbitro |
-| `GET` | `/api/arbitro/search?page=1&pageSize=10&nome=João&status=Ativo&orderBy=nome` | Busca com filtros |
+| `GET` | `/api/arbitros` | Lista todos |
+| `GET` | `/api/arbitros/{id}` | Busca por ID |
+| `POST` | `/api/arbitros` | Cria novo |
+| `PUT` | `/api/arbitros/{id}` | Atualiza |
+| `DELETE` | `/api/arbitros/{id}` | Remove |
+| `GET` | `/api/arbitros/search?nome=João&status=Ativo&page=1&pageSize=10` | Busca com filtros |
 
 ### Arbitragens
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/arbitragens` | Lista todas as arbitragens |
-| `GET` | `/api/arbitragens/{idPartida}/{idArbitro}` | Busca arbitragem específica |
-| `POST` | `/api/arbitragens` | Cria nova arbitragem |
-| `PUT` | `/api/arbitragens/{idPartida}/{idArbitro}` | Atualiza arbitragem |
-| `DELETE` | `/api/arbitragens/{idPartida}/{idArbitro}` | Remove arbitragem |
+| `GET` | `/api/arbitragens` | Lista todas |
+| `GET` | `/api/arbitragens/{idPartida}/{idArbitro}` | Busca específica |
+| `POST` | `/api/arbitragens` | Cria nova |
+| `PUT` | `/api/arbitragens/{idPartida}/{idArbitro}` | Atualiza |
+| `DELETE` | `/api/arbitragens/{idPartida}/{idArbitro}` | Remove |
 | `GET` | `/api/arbitragens/search?idPartida=1&funcao=Principal` | Busca com filtros |
 
 ### Campeonatos
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/campeonatos` | Lista todos os campeonatos |
-| `GET` | `/api/campeonatos/{id}` | Busca campeonato por ID |
-| `POST` | `/api/campeonatos` | Cria novo campeonato |
-| `PUT` | `/api/campeonatos/{id}` | Atualiza campeonato |
-| `DELETE` | `/api/campeonatos/{id}` | Remove campeonato |
+| `GET` | `/api/campeonatos` | Lista todos |
+| `GET` | `/api/campeonatos/{id}` | Busca por ID |
+| `POST` | `/api/campeonatos` | Cria novo |
+| `PUT` | `/api/campeonatos/{id}` | Atualiza |
+| `DELETE` | `/api/campeonatos/{id}` | Remove |
 | `GET` | `/api/campeonatos/search?categoria=Sub-17&ano=2025` | Busca com filtros |
 
 ### Denúncias
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/denuncias` | Lista todas as denúncias |
-| `GET` | `/api/denuncias/{id}` | Busca denúncia por ID |
-| `POST` | `/api/denuncias` | Cria nova denúncia |
-| `PUT` | `/api/denuncias/{id}` | Atualiza denúncia |
-| `DELETE` | `/api/denuncias/{id}` | Remove denúncia |
+| `GET` | `/api/denuncias` | Lista todas |
+| `GET` | `/api/denuncias/{id}` | Busca por ID |
+| `POST` | `/api/denuncias` | Cria nova (gera log no MongoDB) |
+| `PUT` | `/api/denuncias/{id}` | Atualiza (gera log no MongoDB) |
+| `DELETE` | `/api/denuncias/{id}` | Remove (gera log no MongoDB) |
 | `GET` | `/api/denuncias/search?status=Em Análise&dataInicio=2025-01-01` | Busca com filtros |
 
 ### Equipes
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/equipe` | Lista todas as equipes |
-| `GET` | `/api/equipe/{id}` | Busca equipe por ID |
-| `POST` | `/api/equipe` | Cria nova equipe |
-| `PUT` | `/api/equipe/{id}` | Atualiza equipe |
-| `DELETE` | `/api/equipe/{id}` | Remove equipe |
-| `GET` | `/api/equipe/search?cidade=São Paulo&estado=SP` | Busca com filtros |
+| `GET` | `/api/equipes` | Lista todas |
+| `GET` | `/api/equipes/{id}` | Busca por ID |
+| `POST` | `/api/equipes` | Cria nova |
+| `PUT` | `/api/equipes/{id}` | Atualiza |
+| `DELETE` | `/api/equipes/{id}` | Remove |
+| `GET` | `/api/equipes/search?cidade=São Paulo&estado=SP` | Busca com filtros |
 
 ### Participações
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/participacao` | Lista todas as participações |
-| `GET` | `/api/participacao/{idPartida}/{idEquipe}` | Busca participação específica |
-| `POST` | `/api/participacao` | Cria nova participação |
-| `PUT` | `/api/participacao/{idPartida}/{idEquipe}` | Atualiza participação |
-| `DELETE` | `/api/participacao/{idPartida}/{idEquipe}` | Remove participação |
-| `GET` | `/api/participacao/search?tipo=Mandante&idPartida=5` | Busca com filtros |
+| `GET` | `/api/participacoes` | Lista todas |
+| `GET` | `/api/participacoes/{idPartida}/{idEquipe}` | Busca específica |
+| `POST` | `/api/participacoes` | Cria nova |
+| `PUT` | `/api/participacoes/{idPartida}/{idEquipe}` | Atualiza |
+| `DELETE` | `/api/participacoes/{idPartida}/{idEquipe}` | Remove |
+| `GET` | `/api/participacoes/search?tipo=Mandante&idPartida=5` | Busca com filtros |
 
 ### Partidas
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/partidas` | Lista todas as partidas |
-| `GET` | `/api/partidas/{id}` | Busca partida por ID |
-| `POST` | `/api/partidas` | Cria nova partida |
-| `PUT` | `/api/partidas/{id}` | Atualiza partida |
-| `DELETE` | `/api/partidas/{id}` | Remove partida |
+| `GET` | `/api/partidas` | Lista todas |
+| `GET` | `/api/partidas/{id}` | Busca por ID |
+| `POST` | `/api/partidas` | Cria nova |
+| `PUT` | `/api/partidas/{id}` | Atualiza |
+| `DELETE` | `/api/partidas/{id}` | Remove |
 | `GET` | `/api/partidas/search?idCampeonato=1&dataInicio=2025-01-01` | Busca com filtros |
 
-> **📝 Nota:** Todos os endpoints de busca suportam paginação (`page`, `pageSize`), ordenação (`orderBy`) e incluem links HATEOAS.
+> **📝 Nota:** Todos os endpoints de busca suportam paginação (`page`, `pageSize`), ordenação (`orderBy`) e retornam links HATEOAS.
 
 ---
 
@@ -420,20 +505,23 @@ O projeto inclui um arquivo `Knowball.http` na raiz do projeto com exemplos de r
 - `RF05`: registrar participação de equipes em partidas (mandante/visitante)
 - `RF06`: designar árbitros para partidas com suas respectivas funções
 - `RF07`: registrar denúncias relacionadas a partidas com protocolo único
+- `RF08`: autenticar usuários e emitir tokens JWT para acesso à API
 
-### Requisitos não funcionais
+## Requisitos não funcionais
 
 - `RNF01`: utilizar Clean Architecture para separação de responsabilidades
-- `RNF02`: persistência de dados em banco Oracle Database via Entity Framework Core
+- `RNF02`: persistência de dados em banco Oracle via Entity Framework Core com migrations
 - `RNF03`: API RESTful com documentação Swagger/OpenAPI
 - `RNF04`: validação de dados com Data Annotations
 - `RNF05`: injeção de dependências para desacoplamento
 - `RNF06`: uso de DTOs para transferência de dados entre camadas
-- `RNF07`: tratamento de exceções com mensagens descritivas
+- `RNF07`: tratamento global de exceções com mensagens descritivas
 - `RNF08`: monitoramento de saúde via Health Checks (`/health`)
 - `RNF09`: logging estruturado com Serilog (console + arquivo rotacionado)
 - `RNF10`: rastreamento distribuído e métricas com OpenTelemetry
 - `RNF11`: cobertura de testes automatizados nas camadas de Domínio, Aplicação e Integração
+- `RNF12`: autenticação e autorização via JWT com controle de roles (`Admin` / `User`)
+- `RNF13`: auditoria de operações em denúncias persistida no MongoDB
 
 ## Integrantes
 
