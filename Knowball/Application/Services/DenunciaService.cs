@@ -1,24 +1,31 @@
 ﻿using Fiap.Knowball.Application.DTOs;
-using Fiap.Knowball.Domain.Repositories;
 using Fiap.Knowball.Application.Exceptions;
+using Fiap.Knowball.Domain.Repositories;
 using Fiap.Knowball.Models;
+using Fiap.Knowball.Models.Repositories;
 
 namespace Fiap.Knowball.Application.Services
 {
     public class DenunciaService : IDenunciaService
     {
         private readonly IDenunciaRepository _repository;
+        private readonly IDenunciaLogRepository _logRepository;
         private readonly ILogger<DenunciaService> _logger;
 
-        public DenunciaService(IDenunciaRepository repository, ILogger<DenunciaService> logger)
+        public DenunciaService(
+            IDenunciaRepository repository,
+            IDenunciaLogRepository logRepository,
+            ILogger<DenunciaService> logger)
         {
             _repository = repository;
+            _logRepository = logRepository;
             _logger = logger;
         }
 
         public DenunciaDto CriarDenuncia(DenunciaDto dto)
         {
-            _logger.LogInformation("Criando denúncia: Protocolo={Protocolo}, PartidaId={IdPartida}, ArbitroId={IdArbitro}",
+            _logger.LogInformation(
+                "Criando denúncia: Protocolo={Protocolo}, PartidaId={IdPartida}, ArbitroId={IdArbitro}",
                 dto.Protocolo, dto.IdPartida, dto.IdArbitro);
 
             var denuncia = new Denuncia
@@ -49,37 +56,25 @@ namespace Fiap.Knowball.Application.Services
             }
 
             _repository.Add(denuncia);
-            _logger.LogInformation("Denúncia criada com sucesso: IdDenuncia={IdDenuncia}, Protocolo={Protocolo}",
+
+            _ = _logRepository.RegistrarAsync(new DenunciaLog
+            {
+                DenunciaId = denuncia.IdDenuncia,
+                Acao = "Criada",
+                Detalhes = $"Protocolo: {denuncia.Protocolo} | Status: {denuncia.Status}"
+            });
+
+            _logger.LogInformation(
+                "Denúncia criada com sucesso: IdDenuncia={IdDenuncia}, Protocolo={Protocolo}",
                 denuncia.IdDenuncia, denuncia.Protocolo);
 
-            return new DenunciaDto
-            {
-                IdDenuncia = denuncia.IdDenuncia,
-                IdPartida = denuncia.IdPartida,
-                IdArbitro = denuncia.IdArbitro,
-                Protocolo = denuncia.Protocolo,
-                Relato = denuncia.Relato,
-                DataDenuncia = denuncia.DataDenuncia,
-                Status = denuncia.Status,
-                ResultadoAnalise = denuncia.ResultadoAnalise
-            };
+            return ToDto(denuncia);
         }
 
         public IEnumerable<DenunciaDto> ListarDenuncias()
         {
             _logger.LogInformation("Listando todas as denúncias");
-            var denuncias = _repository.GetAll();
-            return denuncias.Select(d => new DenunciaDto
-            {
-                IdDenuncia = d.IdDenuncia,
-                IdPartida = d.IdPartida,
-                IdArbitro = d.IdArbitro,
-                Protocolo = d.Protocolo,
-                Relato = d.Relato,
-                DataDenuncia = d.DataDenuncia,
-                Status = d.Status,
-                ResultadoAnalise = d.ResultadoAnalise
-            });
+            return _repository.GetAll().Select(ToDto);
         }
 
         public DenunciaDto ObterPorId(int id)
@@ -93,17 +88,7 @@ namespace Fiap.Knowball.Application.Services
                 return null;
             }
 
-            return new DenunciaDto
-            {
-                IdDenuncia = d.IdDenuncia,
-                IdPartida = d.IdPartida,
-                IdArbitro = d.IdArbitro,
-                Protocolo = d.Protocolo,
-                Relato = d.Relato,
-                DataDenuncia = d.DataDenuncia,
-                Status = d.Status,
-                ResultadoAnalise = d.ResultadoAnalise
-            };
+            return ToDto(d);
         }
 
         public void AtualizarDenuncia(int id, DenunciaDto dto)
@@ -113,7 +98,8 @@ namespace Fiap.Knowball.Application.Services
             var d = _repository.GetById(id);
             if (d == null)
             {
-                _logger.LogWarning("Denúncia não encontrada para atualização: IdDenuncia={IdDenuncia}", id);
+                _logger.LogWarning(
+                    "Denúncia não encontrada para atualização: IdDenuncia={IdDenuncia}", id);
                 throw new BusinessException("Denúncia não encontrada");
             }
 
@@ -127,29 +113,65 @@ namespace Fiap.Knowball.Application.Services
 
             if (!d.StatusValido())
             {
-                _logger.LogWarning("Status inválido ao atualizar denúncia IdDenuncia={IdDenuncia}: {Status}", id, dto.Status);
+                _logger.LogWarning(
+                    "Status inválido ao atualizar denúncia IdDenuncia={IdDenuncia}: {Status}",
+                    id, dto.Status);
                 throw new BusinessException("Status inválido");
             }
             if (!d.ProtocoloValido())
             {
-                _logger.LogWarning("Protocolo inválido ao atualizar denúncia IdDenuncia={IdDenuncia}: {Protocolo}", id, dto.Protocolo);
+                _logger.LogWarning(
+                    "Protocolo inválido ao atualizar denúncia IdDenuncia={IdDenuncia}: {Protocolo}",
+                    id, dto.Protocolo);
                 throw new BusinessException("Protocolo inválido");
             }
             if (!d.RelatoValido())
             {
-                _logger.LogWarning("Relato inválido ao atualizar denúncia IdDenuncia={IdDenuncia}", id);
+                _logger.LogWarning(
+                    "Relato inválido ao atualizar denúncia IdDenuncia={IdDenuncia}", id);
                 throw new BusinessException("Relato inválido");
             }
 
             _repository.Update(d);
-            _logger.LogInformation("Denúncia atualizada com sucesso: IdDenuncia={IdDenuncia}", id);
+
+            _ = _logRepository.RegistrarAsync(new DenunciaLog
+            {
+                DenunciaId = d.IdDenuncia,
+                Acao = "Atualizada",
+                Detalhes = $"Protocolo: {d.Protocolo} | Novo Status: {d.Status}"
+            });
+
+            _logger.LogInformation(
+                "Denúncia atualizada com sucesso: IdDenuncia={IdDenuncia}", id);
         }
 
         public void RemoverDenuncia(int id)
         {
             _logger.LogInformation("Removendo denúncia: IdDenuncia={IdDenuncia}", id);
+
+            _ = _logRepository.RegistrarAsync(new DenunciaLog
+            {
+                DenunciaId = id,
+                Acao = "Removida",
+                Detalhes = $"Denúncia IdDenuncia={id} excluída do sistema"
+            });
+
             _repository.Remove(id);
-            _logger.LogInformation("Denúncia removida com sucesso: IdDenuncia={IdDenuncia}", id);
+
+            _logger.LogInformation(
+                "Denúncia removida com sucesso: IdDenuncia={IdDenuncia}", id);
         }
+
+        private static DenunciaDto ToDto(Denuncia d) => new()
+        {
+            IdDenuncia = d.IdDenuncia,
+            IdPartida = d.IdPartida,
+            IdArbitro = d.IdArbitro,
+            Protocolo = d.Protocolo,
+            Relato = d.Relato,
+            DataDenuncia = d.DataDenuncia,
+            Status = d.Status,
+            ResultadoAnalise = d.ResultadoAnalise
+        };
     }
 }

@@ -3,6 +3,7 @@ using Fiap.Knowball.Application.Exceptions;
 using Fiap.Knowball.Application.Services;
 using Fiap.Knowball.Domain.Repositories;
 using Fiap.Knowball.Models;
+using Fiap.Knowball.Models.Repositories;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,15 +12,18 @@ namespace Fiap.Knowball.Tests.Unit.Services;
 
 public class DenunciaServiceTests
 {
-    private readonly Mock<IDenunciaRepository> _repositoryMock;
+    private readonly Mock<IDenunciaRepository> _repositoryMock = new();
+    private readonly Mock<IDenunciaLogRepository> _logRepositoryMock = new();
+    private readonly Mock<ILogger<DenunciaService>> _loggerMock = new();
     private readonly DenunciaService _service;
 
     public DenunciaServiceTests()
     {
-        _repositoryMock = new Mock<IDenunciaRepository>();
         _service = new DenunciaService(
             _repositoryMock.Object,
-            Mock.Of<ILogger<DenunciaService>>());
+            _logRepositoryMock.Object,
+            _loggerMock.Object
+        );
     }
 
     [Fact]

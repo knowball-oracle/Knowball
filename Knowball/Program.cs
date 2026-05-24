@@ -8,6 +8,7 @@ using Fiap.Knowball.Infrastructure;
 using Fiap.Knowball.Infrastructure.MongoDB;
 using Fiap.Knowball.Infrastructure.Repositories;
 using Fiap.Knowball.Middleware;
+using Fiap.Knowball.Models.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -87,6 +88,8 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSet
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 
 builder.Services.AddSingleton<ILogAcessoRepository, LogAcessoRepository>();
+builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<IDenunciaLogRepository, DenunciaLogRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
@@ -153,15 +156,12 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Knowball API V1");
-        c.RoutePrefix = string.Empty;
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Knowball API V1");
+    c.RoutePrefix = string.Empty;
+});
 
 app.UseSerilogRequestLogging(options =>
 {

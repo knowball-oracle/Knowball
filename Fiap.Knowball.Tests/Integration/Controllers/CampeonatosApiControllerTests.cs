@@ -7,13 +7,13 @@ using FluentAssertions;
 namespace Fiap.Knowball.Tests.Integration.Controllers;
 
 [Collection("Integration")]
-public class CampeonatosApiControllerTests
+public class CampeonatosApiControllerTests : IClassFixture<KnowballWebAppFactory>
 {
     private readonly HttpClient _client;
 
     public CampeonatosApiControllerTests(KnowballWebAppFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CriarClientAutenticado();
     }
 
     [Fact]

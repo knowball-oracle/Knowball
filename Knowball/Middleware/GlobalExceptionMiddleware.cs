@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using System.Text.Json;
+
 using Fiap.Knowball.Application.Exceptions;
 
 namespace Fiap.Knowball.Middleware;
@@ -47,25 +47,16 @@ public class GlobalExceptionMiddleware
     }
 
     private static async Task EscreverRespostaAsync(
-        HttpContext context,
-        HttpStatusCode statusCode,
-        string mensagem)
+    HttpContext context, HttpStatusCode statusCode, string mensagem)
     {
-        if (context.Response.HasStarted)
-            return;
-
-        context.Response.Clear();
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
 
-        var resposta = JsonSerializer.Serialize(new
+        await context.Response.WriteAsJsonAsync(new
         {
-            statusCode = (int)statusCode,
-            mensagem,
-            path = context.Request.Path.Value,
+            status = (int)statusCode,
+            erro = mensagem,
             timestamp = DateTime.UtcNow
         });
-
-        await context.Response.WriteAsync(resposta);
     }
 }

@@ -8,30 +8,26 @@ namespace Fiap.Knowball.Tests.Integration.Auth;
 
 public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-    public const string AuthenticationScheme = "Test";
+    public const string AuthenticationScheme = "TestScheme";
 
     public TestAuthHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
-        UrlEncoder encoder)
-        : base(options, logger, encoder)
-    {
-    }
+        UrlEncoder encoder) : base(options, logger, encoder) { }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (!Request.Headers.TryGetValue("X-Test-Auth", out var authHeader))
-        {
-            return Task.FromResult(AuthenticateResult.Fail("Usuário não autenticado."));
-        }
+        if (!Request.Headers.ContainsKey("X-Test-Auth"))
+            return Task.FromResult(AuthenticateResult.Fail("Header X-Test-Auth ausente"));
 
         var role = Request.Headers["X-Test-Role"].FirstOrDefault() ?? "User";
 
-        var claims = new List<Claim>
+        var claims = new[]
         {
-            new(ClaimTypes.Name, "usuario-teste"),
-            new(ClaimTypes.NameIdentifier, "1"),
-            new(ClaimTypes.Role, role)
+            new Claim(ClaimTypes.NameIdentifier, "test-user-id"),
+            new Claim(ClaimTypes.Email, "test@knowball.com"),
+            new Claim(ClaimTypes.Name, "Test User"),
+            new Claim(ClaimTypes.Role, role)
         };
 
         var identity = new ClaimsIdentity(claims, AuthenticationScheme);

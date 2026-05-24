@@ -7,20 +7,20 @@ using FluentAssertions;
 namespace Fiap.Knowball.Tests.Integration.Controllers;
 
 [Collection("Integration")]
-public class EquipeControllerTests
+public class EquipeControllerTests : IClassFixture<KnowballWebAppFactory>
 {
     private readonly HttpClient _client;
 
     public EquipeControllerTests(KnowballWebAppFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CriarClientAutenticado();
     }
 
     [Fact]
     public async Task GetAll_SemFiltros_Retorna200()
     {
         // Arrange & Act
-        var response = await _client.GetAsync("/api/equipe");
+        var response = await _client.GetAsync("/api/equipes");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -30,7 +30,7 @@ public class EquipeControllerTests
     public async Task GetById_IdExistente_Retorna200()
     {
         // Arrange & Act
-        var response = await _client.GetAsync("/api/equipe/1");
+        var response = await _client.GetAsync("/api/equipes/1");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -40,7 +40,7 @@ public class EquipeControllerTests
     public async Task GetById_IdInexistente_Retorna404()
     {
         // Arrange & Act
-        var response = await _client.GetAsync("/api/equipe/9999");
+        var response = await _client.GetAsync("/api/equipes/9999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -53,7 +53,7 @@ public class EquipeControllerTests
         var dto = new EquipeDto { Nome = "Palmeiras", Cidade = "São Paulo", Estado = "SP" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/equipe", dto);
+        var response = await _client.PostAsJsonAsync("/api/equipes", dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -66,7 +66,7 @@ public class EquipeControllerTests
         var dto = new EquipeDto { Nome = "", Cidade = "São Paulo", Estado = "SP" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/equipe", dto);
+        var response = await _client.PostAsJsonAsync("/api/equipes", dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -79,7 +79,7 @@ public class EquipeControllerTests
         var dto = new EquipeDto { Nome = "Atlético", Cidade = "Belo Horizonte", Estado = "" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/equipe", dto);
+        var response = await _client.PostAsJsonAsync("/api/equipes", dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -92,7 +92,7 @@ public class EquipeControllerTests
         var dto = new EquipeDto { IdEquipe = 1, Nome = "Flamengo Atualizado", Cidade = "Rio de Janeiro", Estado = "RJ" };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/api/equipe/1", dto);
+        var response = await _client.PutAsJsonAsync("/api/equipes/1", dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -105,7 +105,7 @@ public class EquipeControllerTests
         var dto = new EquipeDto { Nome = "Equipe", Cidade = "Cidade", Estado = "SP" };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/api/equipe/9999", dto);
+        var response = await _client.PutAsJsonAsync("/api/equipes/9999", dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -115,7 +115,7 @@ public class EquipeControllerTests
     public async Task Delete_IdExistente_Retorna200()
     {
         // Arrange & Act
-        var response = await _client.DeleteAsync("/api/equipe/2");
+        var response = await _client.DeleteAsync("/api/equipes/2");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -125,7 +125,7 @@ public class EquipeControllerTests
     public async Task Delete_IdInexistente_Retorna404()
     {
         // Arrange & Act
-        var response = await _client.DeleteAsync("/api/equipe/9999");
+        var response = await _client.DeleteAsync("/api/equipes/9999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

@@ -1,4 +1,6 @@
 ﻿using Fiap.Knowball.Infrastructure;
+using Fiap.Knowball.Models;
+using Fiap.Knowball.Models.Repositories;
 using Fiap.Knowball.Tests.Integration.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Moq;
 
 namespace Fiap.Knowball.Tests.Integration.Fixtures;
 
@@ -14,6 +17,17 @@ public class KnowballWebAppFactory : WebApplicationFactory<Program>
 {
     private static readonly InMemoryDatabaseRoot _dbRoot = new();
     private const string DbName = "KnowballIntegrationTestDb";
+
+    public HttpClient CriarClientAnonimo()
+        => CreateClient();
+
+    public HttpClient CriarClientAutenticado(string role = "Admin")
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Auth", "true");
+        client.DefaultRequestHeaders.Add("X-Test-Role", role);
+        return client;
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -23,12 +37,36 @@ public class KnowballWebAppFactory : WebApplicationFactory<Program>
         {
             var dbContextDescriptor = services.SingleOrDefault(d =>
                 d.ServiceType == typeof(DbContextOptions<KnowballContext>));
-
             if (dbContextDescriptor != null)
                 services.Remove(dbContextDescriptor);
 
             services.AddDbContext<KnowballContext>(options =>
                 options.UseInMemoryDatabase(DbName, _dbRoot));
+
+            var mongoDescriptors = services
+                .Where(d => d.ServiceType.FullName != null &&
+                            d.ServiceType.FullName.Contains("Mongo"))
+                .ToList();
+            foreach (var descriptor in mongoDescriptors)
+                services.Remove(descriptor);
+
+            var logDescriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(IDenunciaLogRepository));
+            if (logDescriptor != null)
+                services.Remove(logDescriptor);
+
+            services.AddScoped<IDenunciaLogRepository>(_ =>
+            {
+                var mock = new Mock<IDenunciaLogRepository>();
+
+                mock.Setup(r => r.RegistrarAsync(It.IsAny<DenunciaLog>()))
+                    .Returns(Task.CompletedTask);
+
+                mock.Setup(r => r.ObterPorDenunciaAsync(It.IsAny<int>()))
+                    .ReturnsAsync(new List<DenunciaLog>());
+
+                return mock.Object;
+            });
 
             services.AddAuthentication(options =>
             {
@@ -52,19 +90,6 @@ public class KnowballWebAppFactory : WebApplicationFactory<Program>
         SeedTestData(db);
 
         return host;
-    }
-
-    public HttpClient CreateAnonymousClient()
-    {
-        return CreateClient();
-    }
-
-    public HttpClient CreateAuthenticatedClient(string role = "User")
-    {
-        var client = CreateClient();
-        client.DefaultRequestHeaders.Add("X-Test-Auth", "true");
-        client.DefaultRequestHeaders.Add("X-Test-Role", role);
-        return client;
     }
 
     private static void SeedTestData(KnowballContext db)
